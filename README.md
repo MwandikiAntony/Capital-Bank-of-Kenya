@@ -1,0 +1,113 @@
+
+# 🏦 Capital Bank Application
+
+A modern, professional **Bank Web Application** built with **React, Node.js, Express, and MongoDB**.  
+This app provides a simulated digital banking experience with secure login/register, transaction management, and profile settings.
+
+---
+
+## 🚀 Features
+
+- 🔐 **Authentication**: User Registration & Login  
+- 👤 **User Dashboard**:
+  - Display **current balance**
+  - **Recent transactions** list
+- 💰 **Transactions**:
+  - Deposit / Withdraw funds
+  - Transfer funds between accounts
+- ⚙️ **Profile Management**:
+  - Update profile details (phone, ID number, etc.)
+- 📊 **Banking Features**:
+  - Notifications
+  - Cards
+  - Spending Limits
+  - Statements
+- 🎨 **Modern UI**:
+  - Sidebar navigation with icons
+  - Dark mode (under settings)
+  - Professional bank-themed design
+  - Responsive layout
+- 🔒 **Protected Routes** using JWT authentication
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React, React Router, Tailwind CSS, React Icons  
+- **Backend**: Node.js, Express.js  
+- **Database**: MongoDB (Mongoose ORM)  
+- **Authentication**: JWT (JSON Web Tokens)  
+
+---
+
+## 📂 Project Structure
+
+
+
+bank-app/
+│── client/ # React frontend
+│ ├── src/
+│ │ ├── pages/ # Login, Register, Dashboard, etc.
+│ │ ├── components/ # PrivateRoute, Navbar, Sidebar
+│ │ ├── App.js
+│ │ └── index.js
+│── server/ # Express backend
+│ ├── models/ # User, Transactions
+│ ├── routes/ # API endpoints
+│ └── server.js
+│── README.md
+
+
+---
+
+## ⚡ Installation & Setup
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/yourusername/capital-bank.git
+cd capital-bank
+
+2. Install Dependencies
+# Install backend dependencies
+cd server
+npm install
+
+# Install frontend dependencies
+cd ../client
+npm install
+
+3. Configure Environment
+
+Create a .env file in the server directory with:
+
+PORT=5000
+MONGO_URI=your_mongo_connection_string
+JWT_SECRET=your_jwt_secret
+
+4. Run the App
+# Start backend
+cd server
+npm start
+
+# Start frontend (in another terminal)
+cd client
+npm start
+
+📸 Screenshots
+![Dashboard](assets/Dashboard.png)
+![Dashboard](assets/DepositWithdraw.png)
+
+📜 License
+
+This project is licensed under the MIT License.
+
+👨‍💻 Author
+
+Your Antony Mwandiki
+
+GitHub: https://github.com/MwandikiAntony
+
+Email: antonymwandiki23@gmail.com
+
+
+
