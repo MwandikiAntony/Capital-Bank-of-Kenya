@@ -57,7 +57,9 @@ bank-app/
 │ └── server.js
 │── README.md
 
-
+------
+📸 Screenshots
+https://github.com/MwandikiAntony/Capital-Bank-of-Kenya/blob/main/assets/Dashboard.png
 ---
 
 ## ⚡ Installation & Setup
