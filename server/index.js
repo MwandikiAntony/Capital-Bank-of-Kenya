@@ -1,9 +1,14 @@
 // server/index.js
+
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+
 const accountRoutes = require('./routes/account');
 const authRoutes = require('./routes/auth');
+const mpesaRoutes = require('./routes/mpesa');
+const usersRoutes = require('./routes/users'); // ✅ Import users route here
+
 const auth = require('./middleware/auth');
 const pool = require('./db');
 
@@ -13,16 +18,19 @@ const app = express();
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
-// routes
-
+// ✅ Mount routes
 app.use('/api/account', accountRoutes);
-
 app.use('/api/auth', authRoutes);
+app.use('/api/mpesa', mpesaRoutes);
+app.use('/api/users', usersRoutes); // ✅ Mount users route under /api/users
 
-// protected dashboard route example
+// ✅ Example protected route
 app.get('/api/dashboard', auth, async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, name, email, created_at FROM users WHERE id = $1', [req.user.id]);
+    const result = await pool.query(
+      'SELECT id, name, email, created_at FROM users WHERE id = $1',
+      [req.user.id]
+    );
     const user = result.rows[0];
     return res.json({ message: `Welcome back, ${user.name}`, user });
   } catch (err) {
@@ -31,7 +39,7 @@ app.get('/api/dashboard', auth, async (req, res) => {
   }
 });
 
-// test
+// ✅ Test route
 app.get('/', (req, res) => res.send('Bank API is running'));
 
 const PORT = process.env.PORT || 5000;

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";
+import UpdateProfile from "../components/UpdateProfile";
 
 // Overview Component
 function Overview({ balance, transactions, darkMode }) {
@@ -26,8 +27,8 @@ function Overview({ balance, transactions, darkMode }) {
   );
 }
 
-// Deposit / Withdraw Component
-function DepositWithdraw({ amount, setAmount, deposit, withdraw, darkMode }) {
+// Deposit / Withdraw Component (modified)
+function DepositWithdraw({ amount, setAmount, deposit, withdraw, simulateMpesa, phone, darkMode }) {
   return (
     <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-xl shadow w-full mb-8`}>
       <h3 className="font-semibold mb-3 flex items-center gap-2"><FaWallet /> Deposit / Withdraw</h3>
@@ -35,10 +36,13 @@ function DepositWithdraw({ amount, setAmount, deposit, withdraw, darkMode }) {
       <div className="flex gap-2">
         <button onClick={deposit} className="flex-1 bg-green-500 text-white py-2 rounded-lg shadow hover:bg-green-600">Deposit</button>
         <button onClick={withdraw} className="flex-1 bg-red-500 text-white py-2 rounded-lg shadow hover:bg-red-600">Withdraw</button>
+        <button onClick={() => simulateMpesa()} className="flex-1 bg-yellow-500 text-white py-2 rounded-lg shadow hover:bg-yellow-600">Simulate M-Pesa</button>
       </div>
+      <p className="text-xs mt-3 text-gray-500 dark:text-gray-400">Simulate M-Pesa deposit (for development)</p>
     </div>
   );
 }
+
 
 // Transfer Funds Component
 function TransferFunds({ amount, setAmount, recipient, setRecipient, transfer, darkMode }) {
@@ -53,19 +57,6 @@ function TransferFunds({ amount, setAmount, recipient, setRecipient, transfer, d
 }
 
 // Update Profile Component
-function UpdateProfile({ phone, setPhone, idNumber, setIdNumber, updateProfile, profileMsg, darkMode }) {
-  return (
-    <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-xl shadow w-full mb-8`}>
-      <h3 className="font-semibold mb-3 flex items-center gap-2"><FaUserEdit /> Update Profile</h3>
-      <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number" className="w-full p-3 border rounded-lg mb-3 focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:border-gray-600"/>
-      <input type="text" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="ID Number" className="w-full p-3 border rounded-lg mb-3 focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:border-gray-600"/>
-      {profileMsg && <p className="text-sm text-green-400 mb-3">{profileMsg}</p>}
-      <button onClick={updateProfile} className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg shadow flex items-center justify-center gap-2">
-        <FaUserEdit /> Update Profile
-      </button>
-    </div>
-  );
-}
 
 // Settings Component
 function Settings({ darkMode, toggleDarkMode }) {
@@ -197,13 +188,39 @@ export default function Dashboard() {
   const [recipient, setRecipient] = useState("");
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
-  const [phone, setPhone] = useState("");
-  const [idNumber, setIdNumber] = useState("");
-  const [profileMsg, setProfileMsg] = useState("");
+ 
   const [activeSection, setActiveSection] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loans, setLoans] = useState([]);
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+    const [phone, setPhone] = useState(currentUser?.phone || "");
+  const [nationalId, setNationalId] = useState(currentUser?.national_id || "");
+ 
+
+
+  //Deposit/Withdraw
+  const simulateMpesa = async () => {
+  if (!amount) return alert('Enter amount to simulate');
+  const payload = {
+    phone: phone || (user && user.phone) || "254723456786", // prioritize stored phone
+    amount,
+    userId: user?.id || null
+  };
+
+  try {
+    const res = await axios.post('http://localhost:5000/api/mpesa/simulate', payload);
+    // res.data includes newBalance and message
+    addNotification(`Simulated M-Pesa deposit of ${amount} KES completed.`);
+    setAmount('');
+    fetchAccount(); // refresh balance & transactions
+    alert(res.data.ResponseDescription || 'Simulated deposit successful');
+  } catch (err) {
+    console.error(err);
+    alert('Simulation failed');
+  }
+};
+
   // Loan states
   const [loanAmount, setLoanAmount] = useState("");
   const [duration, setDuration] = useState("");
@@ -241,7 +258,7 @@ export default function Dashboard() {
       if (storedUser) {
         setUser(storedUser);
         setPhone(storedUser.phone || "");
-        setIdNumber(storedUser.id_number || "");
+        setNationalId(storedUser.id_number || "");
       }
     } catch (err) {
       console.error("Error fetching account:", err.response?.data || err.message);
@@ -294,23 +311,6 @@ const applyLoan = () => {
 };
 
 
-const updateProfile = async () => {
-  try {
-    const res = await axios.put(
-      "http://localhost:5000/api/auth/profile",
-      { phone, id_number: idNumber },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    addNotification("Profile updated successfully!");
-    setProfileMsg("Profile updated successfully!");
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-    setUser(res.data.user);
-  } catch (err) {
-    addNotification("Failed to update profile.");
-    setProfileMsg("Failed to update profile.");
-    console.error(err);
-  }
-};
 
 
 
@@ -370,16 +370,22 @@ const updateProfile = async () => {
 
   {activeSection === "deposit" &&
     <>
-      <DepositWithdraw 
-        amount={amount} 
-        setAmount={setAmount} 
-        deposit={deposit} 
-        withdraw={withdraw} 
-        darkMode={darkMode} 
-      />
+      <DepositWithdraw
+  amount={amount}
+  setAmount={setAmount}
+  deposit={deposit}
+  withdraw={withdraw}
+  simulateMpesa={simulateMpesa}
+  phone={phone}
+  darkMode={darkMode}
+/>
+
       <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
     </>
   }
+  
+      {/* Show UpdateProfile component */}
+      <UpdateProfile currentUser={currentUser} />
 
   {activeSection === "transfer" &&
     <>
@@ -395,17 +401,10 @@ const updateProfile = async () => {
     </>
   }
 
-  {activeSection === "profile" &&
-    <UpdateProfile 
-      phone={phone} 
-      setPhone={setPhone} 
-      idNumber={idNumber} 
-      setIdNumber={setIdNumber} 
-      updateProfile={updateProfile} 
-      profileMsg={profileMsg} 
-      darkMode={darkMode} 
-    />
-  }
+ 
+    
+
+
 
   {activeSection === "settings" &&
     <Settings darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
