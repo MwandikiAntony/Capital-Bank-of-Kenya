@@ -1,0 +1,40 @@
+// server/index.js
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const accountRoutes = require('./routes/account');
+const authRoutes = require('./routes/auth');
+const auth = require('./middleware/auth');
+const pool = require('./db');
+
+const app = express();
+
+// CORS - allow client at http://localhost:3000
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(express.json());
+
+// routes
+
+app.use('/api/account', accountRoutes);
+
+app.use('/api/auth', authRoutes);
+
+// protected dashboard route example
+app.get('/api/dashboard', auth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, email, created_at FROM users WHERE id = $1', [req.user.id]);
+    const user = result.rows[0];
+    return res.json({ message: `Welcome back, ${user.name}`, user });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// test
+app.get('/', (req, res) => res.send('Bank API is running'));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
