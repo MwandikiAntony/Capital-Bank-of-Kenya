@@ -59,7 +59,7 @@ bank-app/
 
 ------
 📸 Screenshots
-https://github.com/MwandikiAntony/Capital-Bank-of-Kenya/blob/main/assets/Dashboard.png
+<img width="1356" height="642" alt="DepositWithdraw" src="https://github.com/user-attachments/assets/c7150206-8787-4d2f-9853-44d4cd237847" />
 ---
 
 ## ⚡ Installation & Setup
