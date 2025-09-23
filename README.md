@@ -57,6 +57,14 @@ bank-app/
 │ └── server.js
 │── README.md
 
+------
+📸 Screenshots
+## 1.  Dashboard
+<img width="1366" height="768" alt="Dashboard" src="https://github.com/user-attachments/assets/11053a92-667b-4534-a001-ad9c25a7f2a8" />
+
+## 2. Deposit/Withdraw
+<img width="1356" height="642" alt="DepositWithdraw" src="https://github.com/user-attachments/assets/c7150206-8787-4d2f-9853-44d4cd237847" />
+
 
 ---
 
