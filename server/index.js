@@ -7,7 +7,8 @@ require('dotenv').config();
 const accountRoutes = require('./routes/account');
 const authRoutes = require('./routes/auth');
 const mpesaRoutes = require('./routes/mpesa');
-const usersRoutes = require('./routes/users'); // ✅ Import users route here
+const usersRoutes = require('./routes/users'); 
+const loanRoutes = require('./routes/loanRoutes'); // ✅ Loan routes
 
 const auth = require('./middleware/auth');
 const pool = require('./db');
@@ -22,7 +23,8 @@ app.use(express.json());
 app.use('/api/account', accountRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/mpesa', mpesaRoutes);
-app.use('/api/users', usersRoutes); // ✅ Mount users route under /api/users
+app.use('/api/users', usersRoutes);
+app.use('/api/loans', loanRoutes); // ✅ Added loans here
 
 // ✅ Example protected route
 app.get('/api/dashboard', auth, async (req, res) => {

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";
 import UpdateProfile from "../components/UpdateProfile";
+import LoanApplication from "../components/LoanApplication";
 
 // Overview Component
 function Overview({ balance, transactions, darkMode }) {
@@ -192,10 +193,10 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [loans, setLoans] = useState([]);
+  const [loans] = useState([]);
   const currentUser = JSON.parse(localStorage.getItem("user"));
     const [phone, setPhone] = useState(currentUser?.phone || "");
-  const [nationalId, setNationalId] = useState(currentUser?.national_id || "");
+  const [, setNationalId] = useState(currentUser?.national_id || "");
  
 
 
@@ -221,10 +222,7 @@ export default function Dashboard() {
   }
 };
 
-  // Loan states
-  const [loanAmount, setLoanAmount] = useState("");
-  const [duration, setDuration] = useState("");
-  const [reason, setReason] = useState("");
+
 
 
 
@@ -291,24 +289,6 @@ const transfer = async () => {
   setRecipient("");
   fetchAccount();
 };
-const applyLoan = () => {
-  if (!loanAmount || !duration || !reason) return;
-
-  const newLoan = {
-    id: loans.length + 1,
-    amount: parseFloat(loanAmount),
-    duration,
-    reason,
-    status: "Pending",
-    requested_at: new Date(),
-  };
-
-  setLoans(prev => [newLoan, ...prev]);   // Save loan
-  addNotification(`Loan request of $${loanAmount} submitted.`); // Notify
-  setLoanAmount(""); 
-  setDuration("");
-  setReason("");
-};
 
 
 
@@ -361,6 +341,7 @@ const applyLoan = () => {
           </nav>
           <SidebarTransactions transactions={transactions} darkMode={darkMode} />
         </aside>
+         
 
         {/* Main Content */}
 <main className="flex-1 px-6 py-8 overflow-auto">
@@ -384,8 +365,7 @@ const applyLoan = () => {
     </>
   }
   
-      {/* Show UpdateProfile component */}
-      <UpdateProfile currentUser={currentUser} />
+    
 
   {activeSection === "transfer" &&
     <>
@@ -402,7 +382,10 @@ const applyLoan = () => {
   }
 
  
-    
+      {/* 👇 ADD THIS SECTION FOR PROFILE */}
+  {activeSection === "profile" && (
+    <UpdateProfile currentUser={currentUser} />
+  )}
 
 
 
@@ -450,46 +433,23 @@ const applyLoan = () => {
 )}
 
   
- {activeSection === "limits" && (
+ 
+{/* LoanApplication should only show in Limits */}
+{activeSection === "limits" && (
   <div className={`${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900 shadow"} p-4 rounded-xl`}>
     <h4 className="font-semibold mb-2">Loan Request</h4>
-    
-    <div className="space-y-3">
-      <input
-        type="number"
-        placeholder="Loan Amount"
-        value={loanAmount}
-        onChange={e => setLoanAmount(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Duration (e.g., 6 months)"
-        value={duration}
-        onChange={e => setDuration(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Reason for Loan"
-        value={reason}
-        onChange={e => setReason(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
-      <button
-        onClick={applyLoan}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Apply Loan
-      </button>
-    </div>
+
+    {/* LoanApplication component handles the form */}
+    <LoanApplication userId={user?.id} />
 
     <h5 className="font-semibold mt-4">Loan Requests</h5>
     <ul className="divide-y divide-gray-300 dark:divide-gray-600 max-h-48 overflow-y-auto text-sm">
-      {loans.map(loan => (
+      {loans.map((loan) => (
         <li key={loan.id} className="py-2 flex justify-between">
-          <span>${loan.amount} - {loan.duration} ({loan.status})</span>
-          <span className="text-xs text-gray-500">{loan.requested_at.toLocaleDateString()}</span>
+          <span>Ksh{loan.amount} - {loan.duration} ({loan.status})</span>
+          <span className="text-xs text-gray-500">
+            {loan.requested_at.toLocaleDateString()}
+          </span>
         </li>
       ))}
     </ul>

@@ -93,10 +93,6 @@ npm start
 cd client
 npm start
 
-📸 Screenshots
-![Dashboard](assets/Dashboard.png)
-![Dashboard](assets/DepositWithdraw.png)
-
 📜 License
 
 This project is licensed under the MIT License.
