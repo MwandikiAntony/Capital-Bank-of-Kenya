@@ -59,10 +59,13 @@ bank-app/
 
 ------
 📸 Screenshots
-## 1.  Dashboard
+## 1. Home
+<img width="1355" height="646" alt="Home" src="https://github.com/user-attachments/assets/66dc1bac-6e4b-42d1-b67c-690044d3fc34" />
+
+## 2.  Dashboard
 <img width="1366" height="768" alt="Dashboard" src="https://github.com/user-attachments/assets/11053a92-667b-4534-a001-ad9c25a7f2a8" />
 
-## 2. Deposit/Withdraw
+## 3. Deposit/Withdraw
 <img width="1356" height="642" alt="DepositWithdraw" src="https://github.com/user-attachments/assets/c7150206-8787-4d2f-9853-44d4cd237847" />
 
 
