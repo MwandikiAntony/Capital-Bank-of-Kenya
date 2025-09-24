@@ -4,6 +4,8 @@ import axios from "axios";
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";
 import UpdateProfile from "../components/UpdateProfile";
 import LoanApplication from "../components/LoanApplication";
+import Withdraw from "../components/Withdraw";
+import Deposit from "../components/Deposit";
 
 // Overview Component
 function Overview({ balance, transactions, darkMode }) {
@@ -28,23 +30,6 @@ function Overview({ balance, transactions, darkMode }) {
   );
 }
 
-// Deposit / Withdraw Component (modified)
-function DepositWithdraw({ amount, setAmount, deposit, withdraw, simulateMpesa, phone, darkMode }) {
-  return (
-    <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-xl shadow w-full mb-8`}>
-      <h3 className="font-semibold mb-3 flex items-center gap-2"><FaWallet /> Deposit / Withdraw</h3>
-      <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" className="w-full p-3 border rounded-lg mb-3 focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:border-gray-600"/>
-      <div className="flex gap-2">
-        <button onClick={deposit} className="flex-1 bg-green-500 text-white py-2 rounded-lg shadow hover:bg-green-600">Deposit</button>
-        <button onClick={withdraw} className="flex-1 bg-red-500 text-white py-2 rounded-lg shadow hover:bg-red-600">Withdraw</button>
-        <button onClick={() => simulateMpesa()} className="flex-1 bg-yellow-500 text-white py-2 rounded-lg shadow hover:bg-yellow-600">Simulate M-Pesa</button>
-      </div>
-      <p className="text-xs mt-3 text-gray-500 dark:text-gray-400">Simulate M-Pesa deposit (for development)</p>
-    </div>
-  );
-}
-
-
 // Transfer Funds Component
 function TransferFunds({ amount, setAmount, recipient, setRecipient, transfer, darkMode }) {
   return (
@@ -57,7 +42,7 @@ function TransferFunds({ amount, setAmount, recipient, setRecipient, transfer, d
   );
 }
 
-// Update Profile Component
+
 
 // Settings Component
 function Settings({ darkMode, toggleDarkMode }) {
@@ -195,36 +180,9 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [loans] = useState([]);
   const currentUser = JSON.parse(localStorage.getItem("user"));
-    const [phone, setPhone] = useState(currentUser?.phone || "");
+    const [, setPhone] = useState(currentUser?.phone || "");
   const [, setNationalId] = useState(currentUser?.national_id || "");
  
-
-
-  //Deposit/Withdraw
-  const simulateMpesa = async () => {
-  if (!amount) return alert('Enter amount to simulate');
-  const payload = {
-    phone: phone || (user && user.phone) || "254723456786", // prioritize stored phone
-    amount,
-    userId: user?.id || null
-  };
-
-  try {
-    const res = await axios.post('http://localhost:5000/api/mpesa/simulate', payload);
-    // res.data includes newBalance and message
-    addNotification(`Simulated M-Pesa deposit of ${amount} KES completed.`);
-    setAmount('');
-    fetchAccount(); // refresh balance & transactions
-    alert(res.data.ResponseDescription || 'Simulated deposit successful');
-  } catch (err) {
-    console.error(err);
-    alert('Simulation failed');
-  }
-};
-
-
-
-
 
   const addNotification = (message) => {
   setNotifications(prev => [
@@ -265,21 +223,7 @@ export default function Dashboard() {
 
   useEffect(() => { fetchAccount(); }, [fetchAccount]);
 
-  const deposit = async () => {
-  if (!amount) return;
-  await api.post("/deposit", { amount });
-  addNotification(`Deposited Ksh ${amount} successfully.`);
-  setAmount("");
-  fetchAccount();
-};
 
-const withdraw = async () => {
-  if (!amount) return;
-  await api.post("/withdraw", { amount });
-  addNotification(`Withdrew Ksh ${amount} successfully.`);
-  setAmount("");
-  fetchAccount();
-};
 
 const transfer = async () => {
   if (!recipient || !amount) return;
@@ -321,23 +265,25 @@ const transfer = async () => {
         <aside className={`${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900 shadow"} w-64 p-6 flex-shrink-0 flex flex-col fixed md:static top-0 left-0 h-full transform transition-transform duration-300 z-40 overflow-y-auto
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
           <nav className="flex flex-col gap-2 mb-4">
-            {["overview","deposit","transfer","profile","settings","notifications","cards","limits","statements"].map(section => (
-              <button
-                key={section}
-                onClick={() => { setActiveSection(section); setSidebarOpen(false); }}
-                className={sidebarBtnClass(section)}
-              >
-                {section === "overview" && <><FaWallet /> Overview</>}
-                {section === "deposit" && <><FaWallet /> Deposit / Withdraw</>}
-                {section === "transfer" && <><FaExchangeAlt /> Transfer Funds</>}
-                {section === "profile" && <><FaUserEdit /> Update Profile</>}
-                {section === "settings" && <><FaCog /> Settings</>}
-                {section === "notifications" && <><FaBell /> Notifications</>}
-                {section === "cards" && <><FaCreditCard /> Cards</>}
-                {section === "limits" && <><FaChartLine /> Limits</>}
-                {section === "statements" && <><FaFileInvoice /> Statements</>}
-              </button>
-            ))}
+            {["overview","deposit","withdraw","transfer","profile","settings","notifications","cards","limits","statements"].map(section => (
+  <button
+    key={section}
+    onClick={() => { setActiveSection(section); setSidebarOpen(false); }}
+    className={sidebarBtnClass(section)}
+  >
+    {section === "overview" && <><FaWallet /> Overview</>}
+    {section === "deposit" && <><FaWallet /> Deposit</>}
+    {section === "withdraw" && <><FaWallet /> Withdraw</>}
+    {section === "transfer" && <><FaExchangeAlt /> Transfer Funds</>}
+    {section === "profile" && <><FaUserEdit /> Update Profile</>}
+    {section === "settings" && <><FaCog /> Settings</>}
+    {section === "notifications" && <><FaBell /> Notifications</>}
+    {section === "cards" && <><FaCreditCard /> Cards</>}
+    {section === "limits" && <><FaChartLine /> Limits</>}
+    {section === "statements" && <><FaFileInvoice /> Statements</>}
+  </button>
+))}
+
           </nav>
           <SidebarTransactions transactions={transactions} darkMode={darkMode} />
         </aside>
@@ -349,21 +295,31 @@ const transfer = async () => {
     <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
   }
 
-  {activeSection === "deposit" &&
-    <>
-      <DepositWithdraw
-  amount={amount}
-  setAmount={setAmount}
-  deposit={deposit}
-  withdraw={withdraw}
-  simulateMpesa={simulateMpesa}
-  phone={phone}
-  darkMode={darkMode}
-/>
+{activeSection === "deposit" &&
+  <>
+    <Deposit 
+      user={user}
+      addNotification={addNotification}
+      fetchAccount={fetchAccount}
+      darkMode={darkMode}
+    />
+    <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
+  </>
+}
 
-      <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
-    </>
-  }
+{activeSection === "withdraw" &&
+  <>
+    <Withdraw 
+      user={user}
+      addNotification={addNotification}
+      fetchAccount={fetchAccount}
+      darkMode={darkMode}
+    />
+    <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
+  </>
+}
+
+
   
     
 
@@ -455,6 +411,7 @@ const transfer = async () => {
     </ul>
   </div>
 )}
+
 
 
   {activeSection === "statements" && <p>Statements section coming soon.</p>}
