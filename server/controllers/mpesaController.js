@@ -65,28 +65,33 @@ const stkPush = async (req, res) => {
 const b2cWithdraw = async (req, res) => {
   try {
     const { phone, amount, userId } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ error: "Phone is required" });
+    }
+
     const accessToken = await getAccessToken();
 
     const response = await axios.post(
       "https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest",
       {
         InitiatorName: process.env.MPESA_INITIATOR_NAME,
-        SecurityCredential: process.env.MPESA_SECURITY_CREDENTIAL, // generated with certificate
-        CommandID: "BusinessPayment", // or "SalaryPayment"/"PromotionPayment"
+        SecurityCredential: process.env.MPESA_SECURITY_CREDENTIAL,
+        CommandID: "BusinessPayment",
         Amount: amount,
         PartyA: process.env.MPESA_B2C_SHORTCODE,  
-        PartyB: "254708374149",  // Customer phone
+        PartyB: phone,   // ✅ dynamic phone
         Remarks: "Withdraw",
-        QueueTimeOutURL: "https://your-domain.com/api/mpesa/timeout",
-        ResultURL: "https://your-domain.com/api/mpesa/withdraw/callback",
+        QueueTimeOutURL: `${process.env.MPESA_CALLBACK_BASE}/api/mpesa/timeout`,
+        ResultURL: `${process.env.MPESA_CALLBACK_BASE}/api/mpesa/withdraw/callback`,
         Occasion: "CapitalBank Withdraw"
       },
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
     await pool.query(
-      "INSERT INTO withdrawals(user_id, amount, status) VALUES($1,$2,$3)",
-      [userId, amount, "pending"]
+      "INSERT INTO withdrawals(user_id, amount, phone, status) VALUES($1,$2,$3,$4)",
+      [userId, amount, phone, "pending"]  // ✅ added phone
     );
 
     res.json({ message: "Withdraw initiated", data: response.data });
@@ -95,6 +100,7 @@ const b2cWithdraw = async (req, res) => {
     res.status(500).json({ error: "Failed to initiate Withdraw" });
   }
 };
+
 
 // Callback
 const mpesaCallback = async (req, res) => {
