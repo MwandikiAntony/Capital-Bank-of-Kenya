@@ -85,6 +85,20 @@ router.post('/deposit', auth, async (req, res) => {
   }
 });
 
+//GET BALANCE AFTER WITHDRAW AND DEPOSIT
+
+router.get("/balance", auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT balance FROM accounts WHERE user_id = $1",
+      [req.user.id]
+    );
+    res.json({ balance: result.rows[0].balance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch balance" });
+  }
+});
 /**
  * POST withdraw
  */

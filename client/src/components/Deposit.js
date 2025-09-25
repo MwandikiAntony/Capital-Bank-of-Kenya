@@ -13,7 +13,8 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
 
     setLoading(true);
     try {
-      const userId = localStorage.getItem("userId"); // used directly in request
+      const userId = localStorage.getItem("userId"); // stored after login
+
       await axios.post("http://localhost:5000/api/mpesa/stkpush", {
         phone,
         amount,
@@ -25,7 +26,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
 
       setAmount("");
       setPhone("");
-      fetchAccount?.();
+      fetchAccount?.(); // refresh account (and balance)
     } catch (err) {
       console.error(err);
       setMessage("❌ Failed to initiate deposit.");

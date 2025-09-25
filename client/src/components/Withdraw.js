@@ -11,22 +11,16 @@ export default function Withdraw({ user, addNotification, fetchAccount, darkMode
     if (!phone) return alert("Enter phone number");
 
     setLoading(true);
-    try {
-      const res = await axios.post("http://localhost:5000/api/mpesa/withdraw", {
-        phone,
-        amount,
-      });
-
-      addNotification(`Withdraw request of Ksh ${amount} sent to ${phone}.`);
-      alert(res.data.ResponseDescription || "Withdraw request sent");
-
-      setAmount("");
-      fetchAccount();
-    } catch (err) {
-      console.error(err);
-      alert("Withdraw failed");
-    }
-    setLoading(false);
+   try {
+  const res = await axios.post("http://localhost:5000/api/mpesa/withdraw", { phone, amount, userId: user?.id });
+  alert(res.data.ResponseDescription || "Withdraw request sent");
+  setAmount("");
+  fetchAccount();
+} catch (err) {
+  console.error(err.response?.data || err.message);
+  alert(err.response?.data?.error || "Withdraw failed");
+}
+setLoading(false);
   };
 
   return (

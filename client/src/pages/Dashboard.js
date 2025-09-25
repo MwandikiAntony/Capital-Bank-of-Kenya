@@ -11,9 +11,12 @@ import Deposit from "../components/Deposit";
 function Overview({ balance, transactions, darkMode }) {
   return (
     <>
-      <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-gradient-to-r from-indigo-500 to-blue-600 text-white"} p-6 rounded-2xl shadow mb-8`}>
-        <p className="text-sm">Current Balance</p>
-        <h2 className="text-3xl font-bold mt-1">Ksh{balance}</h2>
+       
+      
+      
+      <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-2xl shadow mb-8`}>
+        <h2 className="text-xl font-semibold">Account Balance</h2>
+      <p className="text-2xl font-bold text-green-600">Ksh {balance}</p>
       </div>
       <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-xl shadow mb-8`}>
         <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
@@ -206,6 +209,7 @@ export default function Dashboard() {
     headers: { Authorization: `Bearer ${token}` },
   });
 
+
   const fetchAccount = useCallback(async () => {
     try {
       const res = await api.get("/");
@@ -223,7 +227,21 @@ export default function Dashboard() {
 
   useEffect(() => { fetchAccount(); }, [fetchAccount]);
 
+ const fetchBalance = async () => {
+    try {
+      const token = localStorage.getItem("token"); // assuming you store token
+      const res = await axios.get("http://localhost:5000/api/account/balance", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBalance(res.data.balance);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  useEffect(() => {
+    fetchBalance();
+  }, []);
 
 const transfer = async () => {
   if (!recipient || !amount) return;
@@ -259,6 +277,7 @@ const transfer = async () => {
           <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg shadow">Logout</button>
         </div>
       </header>
+      
 
       <div className="flex flex-1">
         {/* Sidebar */}
@@ -320,7 +339,7 @@ const transfer = async () => {
 }
 
 
-  
+
     
 
   {activeSection === "transfer" &&
