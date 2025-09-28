@@ -27,4 +27,4 @@ router.get("/test", (req, res) => {
 
 console.log("✅ Mpesa routes loaded");
 
-module.exports = router;
+module.exports = router; // ✅ export the router, not controller functions

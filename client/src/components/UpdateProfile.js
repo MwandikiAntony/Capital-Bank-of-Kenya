@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function UpdateProfile({ currentUser }) {
+export default function UpdateProfile({ currentUser, onComplete }) {
   const [phone, setPhone] = useState(currentUser?.phone || "");
   const [nationalId, setNationalId] = useState(currentUser?.national_id || "");
+  const navigate = useNavigate();
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -13,15 +15,19 @@ export default function UpdateProfile({ currentUser }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          phone: phone,
-          national_id: nationalId,
-        }),
-        credentials: "include", // If you're using cookies/sessions for auth
+        body: JSON.stringify({ phone, national_id: nationalId }),
+        credentials: "include",
       });
 
       if (res.ok) {
+        const updatedUser = { ...currentUser, phone, national_id: nationalId };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
         alert("Profile updated successfully!");
+
+        if (onComplete) onComplete(updatedUser); // ✅ update Dashboard state too
+
+        navigate("/dashboard/overview");
       } else {
         const errorData = await res.json();
         alert(`Failed to update profile: ${errorData.error || "Unknown error"}`);

@@ -25,14 +25,26 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+        const res = await axios.post("http://localhost:5000/api/auth/register", {
+  name,
+  email,
+  password,
+});
+
+// Save token
+localStorage.setItem("token", res.data.token);
+
+// Save user object
+localStorage.setItem("user", JSON.stringify(res.data.user));
+
+// Save userId separately
+localStorage.setItem("userId", res.data.user.id);
+
+// Optionally, save phone for convenience
+localStorage.setItem("userPhone", res.data.user.phone);
+
+navigate("/dashboard");
+
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed.");
     } finally {

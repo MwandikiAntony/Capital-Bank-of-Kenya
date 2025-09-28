@@ -6,6 +6,8 @@ import UpdateProfile from "../components/UpdateProfile";
 import LoanApplication from "../components/LoanApplication";
 import Withdraw from "../components/Withdraw";
 import Deposit from "../components/Deposit";
+import { useNavigate } from "react-router-dom";
+
 
 // Overview Component
 function Overview({ balance, transactions, darkMode }) {
@@ -170,6 +172,8 @@ function CardDetailsModal({ card, onClose }) {
 }
 
 // Main Dashboard
+// Main Dashboard
+
 export default function Dashboard() {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
@@ -177,24 +181,25 @@ export default function Dashboard() {
   const [recipient, setRecipient] = useState("");
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
- 
+
   const [activeSection, setActiveSection] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loans] = useState([]);
+  const [profileComplete, setProfileComplete] = useState(false);
+
   const currentUser = JSON.parse(localStorage.getItem("user"));
-    const [, setPhone] = useState(currentUser?.phone || "");
+  const [, setPhone] = useState(currentUser?.phone || "");
   const [, setNationalId] = useState(currentUser?.national_id || "");
- 
+  const navigate = useNavigate();
 
   const addNotification = (message) => {
-  setNotifications(prev => [
-    { message, created_at: new Date() },
-    ...prev
-  ]);
-};
+    setNotifications((prev) => [
+      { message, created_at: new Date() },
+      ...prev,
+    ]);
+  };
 
-  
   // Cards State
   const [cards, setCards] = useState([]);
   const [showAddCard, setShowAddCard] = useState(false);
@@ -202,13 +207,11 @@ export default function Dashboard() {
 
   const token = localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user"));
-  
 
   const api = axios.create({
     baseURL: "http://localhost:5000/api/account",
     headers: { Authorization: `Bearer ${token}` },
   });
-
 
   const fetchAccount = useCallback(async () => {
     try {
@@ -218,40 +221,67 @@ export default function Dashboard() {
       if (storedUser) {
         setUser(storedUser);
         setPhone(storedUser.phone || "");
-        setNationalId(storedUser.id_number || "");
+        setNationalId(storedUser.national_id || "");
       }
     } catch (err) {
       console.error("Error fetching account:", err.response?.data || err.message);
     }
   }, [api, storedUser]);
 
-  useEffect(() => { fetchAccount(); }, [fetchAccount]);
+  useEffect(() => {
+    fetchAccount();
+  }, [fetchAccount]);
 
- const fetchBalance = async () => {
+  useEffect(() => {
+  const fetchBalance = async () => {
     try {
-      const token = localStorage.getItem("token"); // assuming you store token
       const res = await axios.get("http://localhost:5000/api/account/balance", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setBalance(res.data.balance);
     } catch (err) {
       console.error(err);
     }
   };
+  fetchBalance();
+}, [token]);
 
+
+  const transfer = async () => {
+    if (!recipient || !amount) return;
+    await api.post("/transfer", { email: recipient, amount });
+    addNotification(`Transferred $${amount} to ${recipient} successfully.`);
+    setAmount("");
+    setRecipient("");
+    fetchAccount();
+  };
+
+  // ✅ Check if user profile is complete
   useEffect(() => {
-    fetchBalance();
-  }, []);
+    if (!currentUser) return;
+    const isComplete = currentUser.phone && currentUser.national_id;
+    setProfileComplete(!!isComplete);
+  }, [currentUser]);
 
-const transfer = async () => {
-  if (!recipient || !amount) return;
-  await api.post("/transfer", { email: recipient, amount });
-  addNotification(`Transferred $${amount} to ${recipient} successfully.`);
-  setAmount("");
-  setRecipient("");
-  fetchAccount();
-};
-
+  // ✅ If profile is incomplete, force update form before dashboard
+  if (!profileComplete) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900">
+        <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
+          <h2 className="text-xl font-semibold mb-4">Complete Your Profile</h2>
+          <UpdateProfile
+            currentUser={currentUser}
+            onComplete={(updatedUser) => {
+              localStorage.setItem("user", JSON.stringify(updatedUser));
+              setUser(updatedUser);
+              setProfileComplete(true);
+              navigate("/dashboard/overview");
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
 
 

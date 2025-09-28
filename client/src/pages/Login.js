@@ -15,12 +15,24 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+  email,
+  password,
+});
+
+// Save token
+localStorage.setItem("token", res.data.token);
+
+// Save user object
+localStorage.setItem("user", JSON.stringify(res.data.user));
+
+// Save userId separately
+localStorage.setItem("userId", res.data.user.id);
+
+// Optionally, save phone
+localStorage.setItem("userPhone", res.data.user.phone);
+
+navigate("/dashboard");
+
     } catch (err) {
       setError(err.response?.data?.error || "Login failed. Check your credentials.");
     } finally {

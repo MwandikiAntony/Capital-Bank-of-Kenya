@@ -1,6 +1,6 @@
 // client/src/App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -9,52 +9,52 @@ import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Help from "./pages/Help";
 import ContactUs from "./pages/ContactUs";
-
+import ProtectedRoute from "./components/ProtectedRoute";
+import UpdateProfile from "./components/UpdateProfile"; // ✅ import UpdateProfile
 
 function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-900 text-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-800 via-indigo-700 to-blue-900 text-white font-sans">
       {/* Header / Navbar */}
-      <header className="flex justify-between items-center px-10 py-6 bg-blue-800 bg-opacity-90 shadow-lg">
+      <header className="flex justify-between items-center px-10 py-6 bg-blue-900 bg-opacity-95 shadow-md sticky top-0 z-50">
         <h1 className="text-2xl font-extrabold flex items-center gap-2">
           🏦 Capital Bank
         </h1>
         <nav className="flex gap-6 text-sm font-medium">
-          <Link to="/register" className="hover:underline">
+          <Link to="/register" className="hover:text-yellow-400 transition">
             Open Account
           </Link>
-          <Link to="/login" className="hover:underline">
+          <Link to="/login" className="hover:text-yellow-400 transition">
             Login
           </Link>
-          <Link to="/dashboard" className="hover:underline">
+          <Link to="/dashboard" className="hover:text-yellow-400 transition">
             Dashboard
           </Link>
-          <Link to="/terms" className="hover:underline">
+          <Link to="/terms" className="hover:text-yellow-400 transition">
             Terms
           </Link>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
-        <h2 className="text-4xl md:text-5xl font-bold mb-4">
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
           Welcome to Capital Bank
         </h2>
-        <p className="text-lg text-blue-100 max-w-2xl mb-8">
+        <p className="text-lg text-blue-200 max-w-2xl mb-8">
           Experience the future of banking with secure accounts, instant
           transfers, flexible loans, and smart savings tools.
         </p>
-
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <Link
             to="/register"
-            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold shadow-lg transition"
+            className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold shadow-lg transition transform hover:-translate-y-1"
           >
             Open Free Account
           </Link>
           <Link
             to="/login"
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-lg transition"
+            className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-lg transition transform hover:-translate-y-1"
           >
             Login
           </Link>
@@ -62,22 +62,22 @@ function Home() {
       </main>
 
       {/* Features Section */}
-      <section className="grid md:grid-cols-3 gap-8 px-10 py-16 bg-white text-gray-800">
-        <div className="p-6 rounded-xl shadow-lg bg-gray-50">
+      <section className="grid md:grid-cols-3 gap-8 px-10 py-20 bg-gray-50 text-gray-800">
+        <div className="p-6 rounded-xl shadow-xl hover:shadow-2xl transition bg-white">
           <h3 className="text-xl font-semibold mb-2">💳 Digital Banking</h3>
           <p className="text-sm">
             Manage your money anytime, anywhere with our easy-to-use online and
             mobile banking platform.
           </p>
         </div>
-        <div className="p-6 rounded-xl shadow-lg bg-gray-50">
+        <div className="p-6 rounded-xl shadow-xl hover:shadow-2xl transition bg-white">
           <h3 className="text-xl font-semibold mb-2">💰 Smart Loans</h3>
           <p className="text-sm">
             Access instant loans with flexible repayment periods and low
             interest rates tailored to your needs.
           </p>
         </div>
-        <div className="p-6 rounded-xl shadow-lg bg-gray-50">
+        <div className="p-6 rounded-xl shadow-xl hover:shadow-2xl transition bg-white">
           <h3 className="text-xl font-semibold mb-2">🔒 Secure Accounts</h3>
           <p className="text-sm">
             Your security is our priority — we use advanced encryption and
@@ -87,30 +87,29 @@ function Home() {
       </section>
 
       {/* Call to Action */}
-      <section className="text-center py-12 bg-blue-800 text-white">
-        <h3 className="text-2xl font-bold mb-4">
+      <section className="text-center py-16 bg-gradient-to-r from-blue-800 via-indigo-700 to-blue-900 text-white">
+        <h3 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow-md">
           Banking Made Simple and Reliable
         </h3>
-        <p className="mb-6 text-blue-200">
+        <p className="mb-6 text-blue-200 max-w-xl mx-auto">
           Join thousands of customers who trust Capital Bank with their savings,
           loans, and investments.
         </p>
         <Link
           to="/register"
-          className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold shadow-lg transition"
+          className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold shadow-lg transition transform hover:-translate-y-1"
         >
           Get Started Now
         </Link>
       </section>
 
       {/* Footer */}
-      <footer className="px-10 py-6 bg-blue-900 text-blue-200 text-sm flex justify-between">
+      <footer className="px-10 py-8 bg-blue-900 text-blue-200 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
         <p>© {new Date().getFullYear()} Capital Bank. All rights reserved.</p>
-        <div className="flex gap-4">
-        <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
-        <Link to="/help" className="hover:underline">Help Center</Link>
-        <Link to="/contact" className="hover:underline">Contact Us</Link>
-
+        <div className="flex gap-6">
+          <Link to="/privacy" className="hover:text-yellow-400 transition">Privacy Policy</Link>
+          <Link to="/help" className="hover:text-yellow-400 transition">Help Center</Link>
+          <Link to="/contact" className="hover:text-yellow-400 transition">Contact Us</Link>
         </div>
       </footer>
     </div>
@@ -118,6 +117,8 @@ function Home() {
 }
 
 export default function App() {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   return (
     <Router>
       <Routes>
@@ -129,14 +130,23 @@ export default function App() {
         <Route path="/help" element={<Help />} />
         <Route path="/contact" element={<ContactUs />} />
 
+        {/* ✅ Update Profile route (always accessible) */}
+        <Route path="/update-profile" element={<UpdateProfile currentUser={currentUser} />} />
+
+        {/* ✅ Dashboard protected by login + profile completion */}
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <ProtectedRoute currentUser={currentUser}>
+                <Dashboard />
+              </ProtectedRoute>
             </PrivateRoute>
           }
         />
+
+        {/* ✅ Catch-all → redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

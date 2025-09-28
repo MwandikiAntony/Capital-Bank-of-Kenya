@@ -1,20 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 export default function Deposit({ addNotification, fetchAccount, darkMode }) {
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [userId, setUserId] = useState(null);
+  const socketRef = useRef(null); // ✅ useRef to persist socket across renders
+
+  // Fetch userId from localStorage on mount
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setMessage("❌ User not logged in.");
+    }
+  }, []);
+
+  // Setup WebSocket connection for real-time balance updates
+  useEffect(() => {
+    if (!userId) return;
+
+    // ✅ Only create socket once
+    if (!socketRef.current) {
+      socketRef.current = io("http://localhost:5000", {
+        transports: ["websocket", "polling"], // allow fallback
+        withCredentials: true,
+      });
+
+      socketRef.current.on("connect", () => {
+        console.log("Socket connected:", socketRef.current.id);
+        socketRef.current.emit("joinUserRoom", userId); // join user's room
+      });
+
+      socketRef.current.on("balanceUpdated", () => {
+        fetchAccount?.();
+      });
+
+      socketRef.current.on("connect_error", (err) => {
+        console.error("Socket connection error:", err.message);
+      });
+    }
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [userId, fetchAccount]);
 
   const handleDeposit = async (e) => {
     e.preventDefault();
     if (!amount || !phone) return alert("Enter phone and amount");
+    if (!userId) return alert("User not logged in");
 
     setLoading(true);
     try {
-      const userId = localStorage.getItem("userId"); // stored after login
-
       await axios.post("http://localhost:5000/api/mpesa/stkpush", {
         phone,
         amount,
@@ -26,7 +68,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
 
       setAmount("");
       setPhone("");
-      fetchAccount?.(); // refresh account (and balance)
+      fetchAccount?.();
     } catch (err) {
       console.error(err);
       setMessage("❌ Failed to initiate deposit.");

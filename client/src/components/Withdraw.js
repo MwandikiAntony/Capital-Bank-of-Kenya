@@ -1,37 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react"; 
 import axios from "axios";
+import { io } from "socket.io-client";
 
-export default function Withdraw({ user, addNotification, fetchAccount, darkMode }) {
+export default function Withdraw({ addNotification, fetchAccount, darkMode }) {
   const [amount, setAmount] = useState("");
-  const [phone, setPhone] = useState(user?.phone || ""); // ✅ new state for phone
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [userId, setUserId] = useState(null);
+
+  const socketRef = useRef(null); // ✅ persist socket across renders
+
+  // Fetch userId and optionally phone from localStorage
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    const storedPhone = localStorage.getItem("userPhone"); 
+    if (storedUserId) setUserId(storedUserId);
+    if (storedPhone) setPhone(storedPhone);
+    if (!storedUserId) setMessage("❌ User not logged in.");
+  }, []);
+
+  // Setup WebSocket only once
+  useEffect(() => {
+    if (!userId) return;
+
+    // ✅ create socket only if not already created
+    if (!socketRef.current) {
+      socketRef.current = io("http://localhost:5000", { transports: ["websocket", "polling"] });
+
+      socketRef.current.on("connect", () => {
+        console.log("Connected to Socket.IO:", socketRef.current.id);
+        socketRef.current.emit("joinUserRoom", userId);
+      });
+
+      socketRef.current.on("balanceUpdated", () => {
+        fetchAccount?.();
+      });
+
+      socketRef.current.on("disconnect", () => {
+        console.log("Socket disconnected");
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [userId, fetchAccount]);
 
   const handleWithdraw = async () => {
     if (!amount) return alert("Enter amount");
     if (!phone) return alert("Enter phone number");
+    if (!userId) return alert("User not logged in");
 
     setLoading(true);
-   try {
-  const res = await axios.post("http://localhost:5000/api/mpesa/withdraw", { phone, amount, userId: user?.id });
-  alert(res.data.ResponseDescription || "Withdraw request sent");
-  setAmount("");
-  fetchAccount();
-} catch (err) {
-  console.error(err.response?.data || err.message);
-  alert(err.response?.data?.error || "Withdraw failed");
-}
-setLoading(false);
+    try {
+      const res = await axios.post("http://localhost:5000/api/mpesa/withdraw", {
+        phone,
+        amount,
+        userId,
+      });
+
+      setMessage(res.data.ResponseDescription || "✅ Withdraw request sent");
+      addNotification?.(`Withdrawal request of Ksh ${amount} sent to ${phone}.`);
+      setAmount("");
+      fetchAccount?.(); 
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      setMessage(err.response?.data?.error || "❌ Withdraw failed");
+    }
+    setLoading(false);
   };
 
   return (
-    <div
-      className={`${
-        darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-      } p-6 rounded-xl shadow w-full mb-8`}
-    >
+    <div className={`${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"} p-6 rounded-xl shadow w-full mb-8`}>
       <h3 className="font-semibold mb-3">Withdraw</h3>
 
-      {/* ✅ Phone number input */}
       <input
         type="text"
         value={phone}
@@ -55,6 +102,12 @@ setLoading(false);
       >
         {loading ? "Processing..." : "Withdraw"}
       </button>
+
+      {message && (
+        <p className={`mt-3 text-sm ${message.includes("✅") ? "text-green-500" : message.includes("❌") ? "text-red-500" : "text-gray-500"}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }
