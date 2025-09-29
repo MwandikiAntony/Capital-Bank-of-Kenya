@@ -8,15 +8,15 @@ This app provides a simulated digital banking experience with secure login/regis
 
 ## 🚀 Features
 
-- 🔐 **Authentication**: User Registration & Login  
-- 👤 **User Dashboard**:
+- 🔐 **Authentication**: User Registration & User Login  
+- 👤 **User Dashboard**: Overview of the users account
   - Display **current balance**
-  - **Recent transactions** list
+  - **Recent transactions** list transactions
 - 💰 **Transactions**:
   - Deposit / Withdraw funds
   - Transfer funds between accounts
 - ⚙️ **Profile Management**:
-  - Update profile details (phone, ID number, etc.)
+  - Update profile details (phone, ID number, name, etc.)
 - 📊 **Banking Features**:
   - Notifications
   - Cards
@@ -108,9 +108,9 @@ npm start
 
 This project is licensed under the MIT License.
 
-👨‍💻 Author
+👨‍💻 Author: Antony Mwandiki
 
-Your Antony Mwandiki
+Name: Antony Mwandiki
 
 GitHub: https://github.com/MwandikiAntony
 
