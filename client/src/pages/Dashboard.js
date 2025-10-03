@@ -7,6 +7,8 @@ import LoanApplication from "../components/LoanApplication";
 import Withdraw from "../components/Withdraw";
 import Deposit from "../components/Deposit";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 // Overview Component
@@ -186,12 +188,21 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loans] = useState([]);
-  const [profileComplete, setProfileComplete] = useState(false);
-
+  
+  const storedUser = JSON.parse(localStorage.getItem("user"));
   const currentUser = JSON.parse(localStorage.getItem("user"));
   const [, setPhone] = useState(currentUser?.phone || "");
   const [, setNationalId] = useState(currentUser?.national_id || "");
   const navigate = useNavigate();
+
+useEffect(() => {
+  if (storedUser) {
+    setUser(storedUser);
+    setPhone(storedUser.phone || "");
+    setNationalId(storedUser.national_id || "");
+  }
+}, [storedUser]);
+
 
   const addNotification = (message) => {
     setNotifications((prev) => [
@@ -206,7 +217,7 @@ export default function Dashboard() {
   const [viewCard, setViewCard] = useState(null);
 
   const token = localStorage.getItem("token");
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  
 
   const api = axios.create({
     baseURL: "http://localhost:5000/api/account",
@@ -244,7 +255,7 @@ export default function Dashboard() {
     }
   };
   fetchBalance();
-}, [token]);
+}, [token, storedUser]);
 
 
   const transfer = async () => {
@@ -256,32 +267,7 @@ export default function Dashboard() {
     fetchAccount();
   };
 
-  // ✅ Check if user profile is complete
-  useEffect(() => {
-    if (!currentUser) return;
-    const isComplete = currentUser.phone && currentUser.national_id;
-    setProfileComplete(!!isComplete);
-  }, [currentUser]);
 
-  // ✅ If profile is incomplete, force update form before dashboard
-  if (!profileComplete) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900">
-        <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-          <h2 className="text-xl font-semibold mb-4">Complete Your Profile</h2>
-          <UpdateProfile
-            currentUser={currentUser}
-            onComplete={(updatedUser) => {
-              localStorage.setItem("user", JSON.stringify(updatedUser));
-              setUser(updatedUser);
-              setProfileComplete(true);
-              navigate("/dashboard/overview");
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
 
 
 
@@ -289,8 +275,22 @@ export default function Dashboard() {
 
   const addCard = (card) => { setCards(prev => [...prev, card]); };
 
-  const handleLogout = () => { localStorage.clear(); window.location.href = "/login"; };
-  const toggleDarkMode = () => { setDarkMode(!darkMode); localStorage.setItem("darkMode", !darkMode); };
+  const toggleDarkMode = () => {
+    setDarkMode(prevMode => !prevMode);
+  };
+
+  // 3. Your logout function with toast & theme support
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.success("You have been logged out.", {
+      position: "top-right",
+      autoClose: 3000,
+      theme: darkMode ? "dark" : "light",
+    });
+    setTimeout(() => {
+      navigate("/login");
+    }, 1500);
+  };
 
   const sidebarBtnClass = (section) => `flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition ${activeSection === section ? "bg-blue-600 text-white" : ""}`;
 
@@ -367,6 +367,20 @@ export default function Dashboard() {
     <Overview balance={balance} transactions={transactions} darkMode={darkMode} />
   </>
 }
+
+  {/* Toast container: place it once */}
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      theme={darkMode ? "dark" : "light"}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
 
 
 

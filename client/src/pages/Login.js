@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState(""); // changed from email
+  const [pin, setPin] = useState("");     // changed from password
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -13,82 +13,77 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
-  email,
-  password,
-});
+        phone, // changed
+        pin,   // changed
+      });
 
-// Save token
-localStorage.setItem("token", res.data.token);
+      const { token, user } = res.data;
 
-// Save user object
-localStorage.setItem("user", JSON.stringify(res.data.user));
+      if (!token || !user) {
+        setError("Invalid response from server. Please try again.");
+        return;
+      }
 
-// Save userId separately
-localStorage.setItem("userId", res.data.user.id);
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userPhone", user.phone);
 
-// Optionally, save phone
-localStorage.setItem("userPhone", res.data.user.phone);
-
-navigate("/dashboard");
+      if (!user.phone_verified) {
+        navigate("/verify-phone");
+      } else {
+        navigate("/dashboard");
+      }
 
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed. Check your credentials.");
+      console.error("Login failed:", err);
+      setError(
+        err.response?.data?.error ||
+        "Login failed. Please check your credentials and try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center 
-      bg-gradient-to-br from-indigo-200 via-blue-100 to-indigo-300 px-4">
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-lg 
-        rounded-2xl shadow-2xl p-8 border border-indigo-200">
-        
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-blue-100 to-indigo-300 px-4">
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-indigo-200">
+
         {/* Branding */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br 
-            from-indigo-600 to-blue-500 flex items-center justify-center 
-            text-white text-xl font-bold shadow-lg">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
             CK
           </div>
-          <h1 className="mt-4 text-2xl font-semibold text-gray-800">
-            Welcome Back
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Sign in to access your account
-          </p>
+          <h1 className="mt-4 text-2xl font-semibold text-gray-800">Welcome Back</h1>
+          <p className="text-sm text-gray-500 mt-1">Sign in to access your account</p>
         </div>
 
-        {/* Form */}
+        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
             <input
-              type="email"
-              className="w-full p-3 border rounded-lg focus:outline-none 
-                focus:ring-2 focus:ring-indigo-400"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="07xxxxxxxx"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
             <input
               type="password"
-              className="w-full p-3 border rounded-lg focus:outline-none 
-                focus:ring-2 focus:ring-indigo-400"
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="Your PIN"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
               required
             />
           </div>

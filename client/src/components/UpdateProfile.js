@@ -1,74 +1,70 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-export default function UpdateProfile({ currentUser, onComplete }) {
-  const [phone, setPhone] = useState(currentUser?.phone || "");
-  const [nationalId, setNationalId] = useState(currentUser?.national_id || "");
-  const navigate = useNavigate();
+export default function UpdateProfile({ currentUser }) {
+  const [accountDetails, setAccountDetails] = useState({
+    balance: 0,
+    account_number: "",
+  });
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    const fetchAccount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:5000/api/account", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    try {
-      const res = await fetch(`http://localhost:5000/api/users/${currentUser.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ phone, national_id: nationalId }),
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const updatedUser = { ...currentUser, phone, national_id: nationalId };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-
-        alert("Profile updated successfully!");
-
-        if (onComplete) onComplete(updatedUser); // ✅ update Dashboard state too
-
-        navigate("/dashboard/overview");
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to update profile: ${errorData.error || "Unknown error"}`);
+        const account = res.data;
+        setAccountDetails({
+          balance: account.balance,
+          account_number: account.account?.account_number || "N/A",
+        });
+      } catch (err) {
+        console.error("Failed to fetch account info:", err);
+        setAccountDetails({
+          balance: "Error",
+          account_number: "Error",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error updating profile:", err);
-      alert("Error updating profile.");
-    }
-  };
+    };
+
+    fetchAccount();
+  }, []);
 
   return (
-    <div className="p-4 border rounded max-w-md mx-auto mt-6">
-      <h2 className="text-xl font-bold mb-4">Update Profile</h2>
-      <form onSubmit={handleUpdate}>
-        <div className="mb-4">
-          <label className="block mb-1">Phone Number</label>
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border p-2 w-full rounded"
-            required
+    <div className="max-w-md mx-auto bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mt-10">
+      <h2 className="text-2xl font-bold text-center mb-6">My Profile</h2>
+
+      {loading ? (
+        <p className="text-center text-gray-500">Loading...</p>
+      ) : (
+        <div className="space-y-4">
+          <ProfileItem label="Full Name" value={currentUser?.name || "N/A"} />
+          <ProfileItem label="Email" value={currentUser?.email || "N/A"} />
+          <ProfileItem label="Phone Number" value={currentUser?.phone || "N/A"} />
+          <ProfileItem label="National ID" value={currentUser?.national_id || "N/A"} />
+          <ProfileItem label="Account Number" value={accountDetails.account_number} />
+          <ProfileItem
+            label="Account Balance"
+            value={`Ksh ${Number(accountDetails.balance).toLocaleString()}`}
           />
         </div>
-        <div className="mb-4">
-          <label className="block mb-1">National ID</label>
-          <input
-            type="text"
-            value={nationalId}
-            onChange={(e) => setNationalId(e.target.value)}
-            className="border p-2 w-full rounded"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Update
-        </button>
-      </form>
+      )}
+    </div>
+  );
+}
+
+function ProfileItem({ label, value }) {
+  return (
+    <div className="flex justify-between items-center border-b py-2 dark:border-gray-700">
+      <span className="font-semibold text-gray-700 dark:text-gray-300">{label}</span>
+      <span className="text-gray-900 dark:text-gray-100">{value}</span>
     </div>
   );
 }
