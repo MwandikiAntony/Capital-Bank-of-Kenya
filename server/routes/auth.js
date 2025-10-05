@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../db');
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+
 
 // ❌ Removed: const jwt = require('jsonwebtoken');
 // ❌ Removed: const authenticateToken = require("../middleware/authenticateToken");
@@ -56,65 +58,59 @@ router.post('/register', async (req, res) => {
     console.log(`📲 OTP for ${phone}: ${otp}`);
     console.log(`📧 Email OTP for ${email}: ${emailOtp}`);
 
-    res.json({
-      message: "Registration successful. Please verify phone and email.",
-      userId: user.id,
-      phone_verified: user.phone_verified,
-      email_verified: user.email_verified
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
     });
+    
+    res.status(201).json({
+      message: "Registration successful. Verify your phone and email.",
+      userId: user.id,
+      token, // ✅ include token
+      phone_verified: user.phone_verified,
+      email_verified: user.email_verified,
+    });
+    
 
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ error: 'Server error' });
   }
 });
+function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "No token provided" });
 
-// ✅ Login (no JWT, session-based)
-router.post('/login', async (req, res) => {
-  const { phone, pin } = req.body;
-  if (!phone || !pin) {
-    return res.status(400).json({ error: 'Phone and PIN are required' });
-  }
+  const token = authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Invalid token format" });
 
   try {
-    const result = await pool.query("SELECT * FROM users WHERE phone = $1", [phone]);
-    if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    const user = result.rows[0];
-
-    if (!user.phone_verified || !user.email_verified) {
-      return res.status(403).json({
-        error: "Please verify your phone and email before logging in."
-      });
-    }
-
-    const isMatch = await bcrypt.compare(pin, user.pin);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    // ✅ Set session
-    req.session.userId = user.id;
-
-    res.json({
-      message: "Login successful",
-      user: {
-        id: user.id,
-        phone_verified: user.phone_verified,
-        email_verified: user.email_verified,
-        phone: user.phone,
-        email: user.email,
-        full_name: user.full_name,
-      }
-    });
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Token verification failed:", err);
+    res.status(403).json({ error: "Invalid or expired token" });
+  }
+}
+// ✅ Add this route to get user info
+router.get("/user", verifyToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, email, phone, email_verified, phone_verified FROM users WHERE id = $1",
+      [req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ user: result.rows[0] });
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 // ✅ Logout
 router.post('/logout', (req, res) => {
@@ -274,10 +270,11 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
 
-    // ✅ Check if verified
+    // ✅ Optional: Allow login even if not verified
+    // Comment this block out if you want them to verify after login
     if (!user.phone_verified || !user.email_verified) {
-      return res.status(403).json({ 
-        error: "Please verify your phone and email before logging in." 
+      return res.status(403).json({
+        error: "Please verify your phone and email before logging in."
       });
     }
 
@@ -289,17 +286,17 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
     res.json({
-  message: "Login successful",
-  token,
-  user: {
-    id: user.id,
-    phone_verified: user.phone_verified,
-    email_verified: user.email_verified,
-    phone: user.phone,           
-    email: user.email,           
-    full_name: user.full_name,   
-  }
-});
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        phone_verified: user.phone_verified,
+        email_verified: user.email_verified,
+        phone: user.phone,
+        email: user.email,
+        full_name: user.full_name,
+      }
+    });
 
   } catch (err) {
     console.error("Login error:", err);

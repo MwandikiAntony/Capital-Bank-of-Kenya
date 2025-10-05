@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Login() {
+export default function Login({onLogin}) {
   const [phone, setPhone] = useState(""); // changed from email
   const [pin, setPin] = useState("");     // changed from password
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+    
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -16,38 +17,37 @@ export default function Login() {
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
-        phone, // changed
-        pin,   // changed
-      });
+        phone,
+        pin,
+      }, { withCredentials: true }); // session-based, so include this!
 
-      const { token, user } = res.data;
+      const { user, token } = res.data;
 
-      if (!token || !user) {
-        setError("Invalid response from server. Please try again.");
-        return;
-      }
+        if (!user || !token) {
+          setError("Invalid response from server. Please try again.");
+          return;
+        }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("userId", user.id);
-      localStorage.setItem("userPhone", user.phone);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userPhone", user.phone);
+        localStorage.setItem("token", token); // ✅ Store token here
+
+
+      if (onLogin) onLogin(user);  // <---- Add this
 
       if (!user.phone_verified) {
         navigate("/verify-phone");
       } else {
         navigate("/dashboard");
       }
-
     } catch (err) {
-      console.error("Login failed:", err);
-      setError(
-        err.response?.data?.error ||
-        "Login failed. Please check your credentials and try again."
-      );
+      // ...
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-blue-100 to-indigo-300 px-4">

@@ -17,23 +17,10 @@ import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Help from "./pages/Help";
 import ContactUs from "./pages/ContactUs";
-import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyPhone from "./pages/VerifyPhone";
 import VerifyEmail from "./pages/VerifyEmail";
 
 // ✅ Safe localStorage parser
-function getLocalStorageJson(key) {
-  const value = localStorage.getItem(key);
-  if (!value || value === "undefined") return null;
-
-  try {
-    return JSON.parse(value);
-  } catch (err) {
-    console.error(`Error parsing localStorage key "${key}":`, err);
-    localStorage.removeItem(key);
-    return null;
-  }
-}
 
 function Home() {
   return (
@@ -123,8 +110,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login onLogin={setCurrentUser} />} />
+        <Route path="/register" element={<Register onRegister={setCurrentUser} />} />
+
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/help" element={<Help />} />
         <Route path="/contact" element={<ContactUs />} />
@@ -135,10 +123,10 @@ export default function App() {
         <Route
           path="/dashboard/*"
           element={
-            <PrivateRoute>
-              <ProtectedRoute currentUser={currentUser}>
+            <PrivateRoute
+               currentUser={currentUser}>
                 <Dashboard currentUser={currentUser} />
-              </ProtectedRoute>
+              
             </PrivateRoute>
           }
         />

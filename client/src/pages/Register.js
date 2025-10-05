@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Register() {
+export default function Register({ onRegister }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -39,38 +39,47 @@ export default function Register() {
       // Convert phone to 2547xxxxxxxx
       const formattedPhone = "254" + phone.slice(1);
 
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        phone: formattedPhone,
-        id_number: idNumber, // ✅ include ID number
-        pin,
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        {
+          name,
+          email,
+          phone: formattedPhone,
+          id_number: idNumber, // ✅ include ID number
+          pin,
+        },
+        { withCredentials: true } // <-- session cookie support if applicable
+      );
 
-      // Save token + userId
-if (res.data.userId) {
-  localStorage.setItem("userId", res.data.userId);
-}
-if (res.data.token) {
-  localStorage.setItem("token", res.data.token);}
+      // Save token + userId to localStorage if provided
+      if (res.data.userId) {
+        localStorage.setItem("userId", res.data.userId);
+      }
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+      if (res.data.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        if (onRegister) onRegister(res.data.user); // <--- Update App state here!
+      }
 
       alert(res.data.message || "Registration successful. Verify your phone and email.");
-      
-    // redirect based on verification status
-    if (!res.data.phone_verified) {
-      navigate("/verify-phone");
-    } else if (!res.data.email_verified) {
-      navigate("/verify-email");
-    } else {
-      navigate("/dashboard");
+
+      // Redirect based on verification status
+      if (!res.data.phone_verified) {
+        navigate("/verify-phone");
+      } else if (!res.data.email_verified) {
+        navigate("/verify-email");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(err.response?.data?.error || "Registration failed");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Registration error:", err);
-    setError(err.response?.data?.error || "Registration failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-blue-100 to-indigo-300 px-4">

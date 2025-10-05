@@ -195,13 +195,17 @@ export default function Dashboard() {
   const [, setNationalId] = useState(currentUser?.national_id || "");
   const navigate = useNavigate();
 
+
+ // Set user from localStorage on mount only
 useEffect(() => {
-  if (storedUser) {
-    setUser(storedUser);
-    setPhone(storedUser.phone || "");
-    setNationalId(storedUser.national_id || "");
+  const stored = JSON.parse(localStorage.getItem("user"));
+  if (stored) {
+    setUser(stored);
+    setPhone(stored.phone || "");
+    setNationalId(stored.national_id || "");
   }
-}, [storedUser]);
+}, []);
+
 
 
   const addNotification = (message) => {
