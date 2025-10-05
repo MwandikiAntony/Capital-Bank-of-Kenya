@@ -16,30 +16,19 @@ export default function Login({onLogin}) {
     setLoading(true);
   
     try {
-      // 1. Login, get token only
+      // 1. Login
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         { phone, pin },
-        { withCredentials: true }
+        { withCredentials: true } // ⬅️ needed for session cookie
       );
-  
-      const { token } = res.data;
-      if (!token) {
-        setError("Invalid response from server. Please try again.");
-        setLoading(false);
-        return;
-      }
-  
-      // 2. Save token
-      localStorage.setItem("token", token);
-  
-      // 3. Fetch full user profile
+      console.log("Login message:", res.data.message);
+      // 2. Fetch profile (no token needed)
       const profileRes = await axios.get("http://localhost:5000/api/auth/user", {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true, // ⬅️ important for cookie-based sessions
       });
+  
       const user = profileRes.data.user;
-      console.log(user.id_number, user.account_number); // should NOT be null
-      
   
       if (!user) {
         setError("Failed to fetch user profile.");
@@ -47,20 +36,18 @@ export default function Login({onLogin}) {
         return;
       }
   
-      // 4. Save user data
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userPhone", user.phone);
   
-      // 5. Callback for parent / context update
       if (onLogin) onLogin(user);
   
-      // 6. Navigate based on verification status
       if (!user.phone_verified) {
         navigate("/verify-phone");
       } else {
         navigate("/dashboard");
       }
+  
     } catch (err) {
       console.error(err);
       setError(
@@ -70,6 +57,7 @@ export default function Login({onLogin}) {
       setLoading(false);
     }
   };
+  
   
 
 

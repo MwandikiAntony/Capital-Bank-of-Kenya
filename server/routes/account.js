@@ -3,6 +3,9 @@ const express = require('express');
 const pool = require('../db');
 const auth = require('../middleware/auth');
 const router = express.Router();
+const { createNotification } = require('../utils/notifications');
+const authMiddleware = require('../middleware/auth');
+
 
 /**
  * GET balance, transactions, and user name
@@ -43,6 +46,43 @@ router.get('/', auth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+// Middleware to check session authentication
+function requireAuth(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  next();
+}
+
+// GET /api/account/notifications
+
+
+router.get('/notifications', async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const result = await pool.query(
+      `SELECT id, message, is_read, created_at
+       FROM notifications
+       WHERE user_id = $1
+       ORDER BY created_at DESC
+       LIMIT 20`,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 
 /**
  * POST deposit

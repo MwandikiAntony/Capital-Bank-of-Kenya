@@ -9,6 +9,7 @@ import Deposit from "../components/Deposit";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../utils/api";
 
 
 // Overview Component
@@ -223,14 +224,11 @@ useEffect(() => {
   const token = localStorage.getItem("token");
   
 
-  const api = axios.create({
-    baseURL: "http://localhost:5000/api/account",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+
 
   const fetchAccount = useCallback(async () => {
     try {
-      const res = await api.get("/");
+      const res = await api.get("/account");
       setBalance(res.data.balance);
       setTransactions(res.data.transactions);
       if (storedUser) {
@@ -270,6 +268,25 @@ useEffect(() => {
     setRecipient("");
     fetchAccount();
   };
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await api.get("/notifications");  // token is auto-added via interceptor
+      setNotifications(res.data);
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        console.error("Error fetching notifications:", err);
+      }
+    }
+    
+  }, [api]); // ✅ Add 'api' here
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchNotifications();
+    }
+  }, [fetchNotifications]);
+  
 
 
 
@@ -463,7 +480,12 @@ useEffect(() => {
     <h4 className="font-semibold mb-2">Loan Request</h4>
 
     {/* LoanApplication component handles the form */}
-    <LoanApplication userId={user?.id} />
+    <LoanApplication 
+  userId={user?.id} 
+  fetchNotifications={fetchNotifications} 
+  addNotification={addNotification} 
+/>
+
 
     <h5 className="font-semibold mt-4">Loan Requests</h5>
     <ul className="divide-y divide-gray-300 dark:divide-gray-600 max-h-48 overflow-y-auto text-sm">

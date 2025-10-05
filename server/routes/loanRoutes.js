@@ -1,9 +1,9 @@
-// backend/routes/loanRoutes.js
 const express = require("express");
-const { applyLoan } = require("../controllers/loanController");
-
 const router = express.Router();
+const loanController = require("../controllers/loanController");
+const verifyToken = require("../middleware/verifyToken");
 
-router.post("/apply", applyLoan);
+router.post("/apply", verifyToken, loanController.applyLoan);
+router.post("/:loanId/markRepaid", verifyToken, loanController.markLoanRepaid);
 
 module.exports = router;

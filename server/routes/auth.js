@@ -277,8 +277,6 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
 
-    // ✅ Optional: Allow login even if not verified
-    // Comment this block out if you want them to verify after login
     if (!user.phone_verified || !user.email_verified) {
       return res.status(403).json({
         error: "Please verify your phone and email before logging in."
@@ -290,11 +288,11 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '2h' });
+    // ✅ SESSION SETUP HERE
+    req.session.userId = user.id; // ✅ Store user ID in session
 
     res.json({
       message: "Login successful",
-      token,
       user: {
         id: user.id,
         phone_verified: user.phone_verified,
@@ -310,8 +308,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-
 
 
 module.exports = router;

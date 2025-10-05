@@ -36,6 +36,9 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ Mount routes
+
+app.use('/api', accountRoutes);  // ✅ So /api/notifications will work
+
 app.use('/api/account', accountRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/mpesa', mpesaRoutes);

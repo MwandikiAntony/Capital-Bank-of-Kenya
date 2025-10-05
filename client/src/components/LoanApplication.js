@@ -1,20 +1,49 @@
 // frontend/src/components/LoanApplication.js
+
 import React, { useState } from "react";
 
-export default function LoanApplication({ userId }) {
+export default function LoanApplication({ userId, fetchNotifications, addNotification }) {
   const [amount, setAmount] = useState("");
   const [repaymentMonths, setRepaymentMonths] = useState("1");
   const [message, setMessage] = useState("");
+  const [loan, setLoan] = useState(null);
+  const token = localStorage.getItem("token");
 
   const handleApply = async () => {
-    const res = await fetch("http://localhost:5000/api/loans/apply", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, amount, repaymentMonths }),
-    });
+    if (!amount || !repaymentMonths) {
+      setMessage("Please enter amount & repayment period");
+      return;
+    }
 
-    const data = await res.json();
-    setMessage(data.message || data.error);
+    try {
+      const res = await fetch("http://localhost:5000/api/loans/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: Number(amount),
+          repaymentMonths: Number(repaymentMonths),
+        }),
+        
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error || "Loan application failed");
+      } else {
+        setMessage(data.message || "Loan application successful");
+        setLoan(data.loan);
+        // After loan request success:
+fetchNotifications();
+addNotification("Loan request submitted successfully");
+
+      }
+    } catch (err) {
+      setMessage("Network error. Please try again.");
+      console.error(err);
+    }
   };
 
   return (
@@ -27,8 +56,6 @@ export default function LoanApplication({ userId }) {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         className="w-full border px-3 py-2 rounded mb-4"
-        min="100"
-        max="50000"
       />
 
       <label className="block mb-2">Repayment Period (Months)</label>
@@ -52,6 +79,15 @@ export default function LoanApplication({ userId }) {
       </button>
 
       {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+
+      {loan && (
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <p><strong>Loan ID:</strong> {loan.id}</p>
+          <p><strong>Amount:</strong> KSh {loan.amount}</p>
+          <p><strong>Status:</strong> {loan.status}</p>
+          <p><strong>Repayment:</strong> {loan.repaymentMonths ?? loan.repayment_months} month(s)</p>
+        </div>
+      )}
     </div>
   );
 }
