@@ -12,16 +12,18 @@ export default function UpdateProfile({ currentUser }) {
     const fetchAccount = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/account", {
+        const res = await axios.get("http://localhost:5000/api/auth/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        const account = res.data;
+        console.log("API response:", res.data);
+    
+        const user = res.data.user;
+    
         setAccountDetails({
-          balance: account.balance,
-          account_number: account.account?.account_number || "N/A",
+          balance: user.balance,
+          account_number: user.account_number || "N/A",
         });
       } catch (err) {
         console.error("Failed to fetch account info:", err);
@@ -33,6 +35,7 @@ export default function UpdateProfile({ currentUser }) {
         setLoading(false);
       }
     };
+    
 
     fetchAccount();
   }, []);
@@ -48,7 +51,7 @@ export default function UpdateProfile({ currentUser }) {
           <ProfileItem label="Full Name" value={currentUser?.name || "N/A"} />
           <ProfileItem label="Email" value={currentUser?.email || "N/A"} />
           <ProfileItem label="Phone Number" value={currentUser?.phone || "N/A"} />
-          <ProfileItem label="National ID" value={currentUser?.national_id || "N/A"} />
+          <ProfileItem label="National ID" value={currentUser?.id_number || "N/A"} />
           <ProfileItem label="Account Number" value={accountDetails.account_number} />
           <ProfileItem
             label="Account Balance"

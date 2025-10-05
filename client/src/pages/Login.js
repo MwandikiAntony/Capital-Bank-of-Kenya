@@ -14,39 +14,63 @@ export default function Login({onLogin}) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
+  
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        phone,
-        pin,
-      }, { withCredentials: true }); // session-based, so include this!
-
-      const { user, token } = res.data;
-
-        if (!user || !token) {
-          setError("Invalid response from server. Please try again.");
-          return;
-        }
-
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("userId", user.id);
-        localStorage.setItem("userPhone", user.phone);
-        localStorage.setItem("token", token); // ✅ Store token here
-
-
-      if (onLogin) onLogin(user);  // <---- Add this
-
+      // 1. Login, get token only
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        { phone, pin },
+        { withCredentials: true }
+      );
+  
+      const { token } = res.data;
+      if (!token) {
+        setError("Invalid response from server. Please try again.");
+        setLoading(false);
+        return;
+      }
+  
+      // 2. Save token
+      localStorage.setItem("token", token);
+  
+      // 3. Fetch full user profile
+      const profileRes = await axios.get("http://localhost:5000/api/auth/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const user = profileRes.data.user;
+      console.log(user.id_number, user.account_number); // should NOT be null
+      
+  
+      if (!user) {
+        setError("Failed to fetch user profile.");
+        setLoading(false);
+        return;
+      }
+  
+      // 4. Save user data
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userPhone", user.phone);
+  
+      // 5. Callback for parent / context update
+      if (onLogin) onLogin(user);
+  
+      // 6. Navigate based on verification status
       if (!user.phone_verified) {
         navigate("/verify-phone");
       } else {
         navigate("/dashboard");
       }
     } catch (err) {
-      // ...
+      console.error(err);
+      setError(
+        err.response?.data?.error || "Login failed. Please check your credentials."
+      );
     } finally {
       setLoading(false);
     }
   };
+  
 
 
   return (

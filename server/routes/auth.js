@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO users (name, email, phone, id_number, pin, email_verified, phone_verified)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, name, email, phone, email_verified, phone_verified, created_at`,
+       RETURNING id, name, email, phone, id_number, email_verified, phone_verified, created_at`,
       [name, email, phone, id_number, hashedPin, false, false]
     );
 
@@ -96,7 +96,13 @@ function verifyToken(req, res, next) {
 router.get("/user", verifyToken, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, name, email, phone, email_verified, phone_verified FROM users WHERE id = $1",
+      `SELECT 
+          u.id, u.name, u.email, u.phone, u.email_verified, u.phone_verified, 
+          u.id_number, u.created_at,
+          a.account_number, a.balance
+       FROM users u
+       LEFT JOIN accounts a ON u.id = a.user_id
+       WHERE u.id = $1`,
       [req.userId]
     );
 
@@ -110,6 +116,7 @@ router.get("/user", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 
 // ✅ Logout
