@@ -3,8 +3,8 @@ const express = require('express');
 const pool = require('../db');
 const auth = require('../middleware/auth');
 const router = express.Router();
-const { createNotification } = require('../utils/notifications');
-const authMiddleware = require('../middleware/auth');
+
+
 
 
 /**
@@ -57,9 +57,9 @@ function requireAuth(req, res, next) {
 // GET /api/account/notifications
 
 
-router.get('/notifications', async (req, res) => {
+router.get('/notifications', auth, async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const userId = req.user.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -73,7 +73,7 @@ router.get('/notifications', async (req, res) => {
        LIMIT 20`,
       [userId]
     );
-
+console.log("Notifications found:", result.rows.length);
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching notifications:', err);

@@ -1,6 +1,6 @@
 // client/src/pages/Dashboard.js
 import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";
 import UpdateProfile from "../components/UpdateProfile";
 import LoanApplication from "../components/LoanApplication";
@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../utils/api";
+import { fetchNotifications as fetchNotificationsService } from "../services/notifications";
+
 
 
 // Overview Component
@@ -221,72 +223,64 @@ useEffect(() => {
   const [showAddCard, setShowAddCard] = useState(false);
   const [viewCard, setViewCard] = useState(null);
 
+  
+
+
+const fetchAccount = useCallback(async () => {
+  try {
+    const res = await api.get("/account");
+    setBalance(res.data.balance);
+    setTransactions(res.data.transactions);
+    if (storedUser) {
+      setUser(storedUser);
+      setPhone(storedUser.phone || "");
+      setNationalId(storedUser.national_id || "");
+    }
+  } catch (err) {
+    console.error("Error fetching account:", err.response?.data || err.message);
+  }
+}, []);  // <-- removed storedUser from dependency array
+
+useEffect(() => {
+  fetchAccount();
+}, [fetchAccount]);
+
+// Removed this effect entirely to avoid duplicate calls and loops
+// useEffect(() => {
+//   const fetchBalance = async () => {
+//     try {
+//       const res = await axios.get("http://localhost:5000/api/account/balance", {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       setBalance(res.data.balance);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+//   fetchBalance();
+// }, [token, storedUser]);
+
+const transfer = async () => {
+  if (!recipient || !amount) return;
+  await api.post("/transfer", { email: recipient, amount });
+  addNotification(`Transferred $${amount} to ${recipient} successfully.`);
+  setAmount("");
+  setRecipient("");
+  fetchAccount();
+};
+
+  
+ useEffect(() => {
   const token = localStorage.getItem("token");
-  
-
-
-
-  const fetchAccount = useCallback(async () => {
-    try {
-      const res = await api.get("/account");
-      setBalance(res.data.balance);
-      setTransactions(res.data.transactions);
-      if (storedUser) {
-        setUser(storedUser);
-        setPhone(storedUser.phone || "");
-        setNationalId(storedUser.national_id || "");
-      }
-    } catch (err) {
-      console.error("Error fetching account:", err.response?.data || err.message);
-    }
-  }, [api, storedUser]);
-
-  useEffect(() => {
-    fetchAccount();
-  }, [fetchAccount]);
-
-  useEffect(() => {
-  const fetchBalance = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/account/balance", {
-        headers: { Authorization: `Bearer ${token}` },
+  if (token) {
+    fetchNotificationsService()
+      .then(setNotifications)
+      .catch((err) => {
+        // already logged inside service
       });
-      setBalance(res.data.balance);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  fetchBalance();
-}, [token, storedUser]);
+  }
+}, []);
 
-
-  const transfer = async () => {
-    if (!recipient || !amount) return;
-    await api.post("/transfer", { email: recipient, amount });
-    addNotification(`Transferred $${amount} to ${recipient} successfully.`);
-    setAmount("");
-    setRecipient("");
-    fetchAccount();
-  };
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const res = await api.get("/notifications");  // token is auto-added via interceptor
-      setNotifications(res.data);
-    } catch (err) {
-      if (err.response?.status !== 401) {
-        console.error("Error fetching notifications:", err);
-      }
-    }
-    
-  }, [api]); // ✅ Add 'api' here
-  
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchNotifications();
-    }
-  }, [fetchNotifications]);
-  
 
 
 
@@ -482,9 +476,10 @@ useEffect(() => {
     {/* LoanApplication component handles the form */}
     <LoanApplication 
   userId={user?.id} 
-  fetchNotifications={fetchNotifications} 
+  fetchNotifications={fetchNotificationsService} 
   addNotification={addNotification} 
 />
+
 
 
     <h5 className="font-semibold mt-4">Loan Requests</h5>

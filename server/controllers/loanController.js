@@ -65,11 +65,18 @@ const applyLoan = async (req, res) => {
       [userId, amount, repaymentMonths, totalPayable]
     );
     const loan = loanResult.rows[0];
-    // Add notification for admin (assuming admin user_id = 1 or broadcast notification)
+    // Insert notification for admin
 await db.query(
   `INSERT INTO notifications (user_id, type, message)
    VALUES ($1, $2, $3)`,
   [1, 'loan_request', `New loan application received with ID ${loan.id} by user ${userId}`]
+);
+
+// Also insert notification for the user who applied
+await db.query(
+  `INSERT INTO notifications (user_id, type, message)
+   VALUES ($1, $2, $3)`,
+  [userId, 'loan_status', `Your loan application with ID ${loan.id} has been submitted.`]
 );
 
     // ✅ Insert repayment schedule

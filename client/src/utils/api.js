@@ -9,7 +9,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");  // or sessionStorage, depending on where you store it
-    console.log("Sending token:", token);
+ 
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

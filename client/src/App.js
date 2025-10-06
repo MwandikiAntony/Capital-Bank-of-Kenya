@@ -83,6 +83,7 @@ function Home() {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
