@@ -1,14 +1,15 @@
+// src/utils/api.js
 import axios from "axios";
 
-// Use environment variable for API URL, fallback to localhost for dev
+// Use deployed API in production, localhost in dev
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
+  withCredentials: true, // ✅ include cookies
 });
 
-// Automatically include token in requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token"); // or sessionStorage if you prefer
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
