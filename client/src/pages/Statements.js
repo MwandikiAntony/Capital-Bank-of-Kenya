@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 export default function Statements({ transactions, darkMode }) {
   const [filter, setFilter] = useState("all");
@@ -45,11 +45,12 @@ export default function Statements({ transactions, darkMode }) {
       new Date(tx.created_at).toLocaleTimeString(),
     ]);
 
-    doc.autoTable({
-      head: [["Type", "Amount", "Date", "Time"]],
-      body: table,
-      startY: 25,
-    });
+    autoTable(doc, {
+  head: [["Type", "Amount", "Date", "Time"]],
+  body: table,
+  startY: 25,
+});
+
 
     doc.save("Capital-Bank-Statement.pdf");
   };
