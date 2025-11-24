@@ -28,11 +28,12 @@ app.use(session({
   },
 }));
 
-// CORS - allow client at http://localhost:3000
+// CORS 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true, // ✅ allow cookies from frontend
+  origin: 'https://capital-bank-of-kenya.vercel.app', // frontend URL
+  credentials: true, // allow cookies
 }));
+
 app.use(express.json());
 
 // ✅ Mount routes
@@ -70,14 +71,19 @@ app.get('/', (req, res) => res.send('Bank API is running'));
 // ✅ Create HTTP server for Socket.IO
 const server = http.createServer(app);
 
-// ✅ Initialize Socket.IO
+
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.NODE_ENV === 'production'
+      ? 'https://capital-bank-of-kenya.vercel.app'  // production frontend
+      : 'http://localhost:3000',                     // local dev
     methods: ['GET', 'POST'],
+    credentials: true,
   },
   transports: ['websocket', 'polling'],
 });
+
 
 // ✅ Socket.IO connection
 io.on('connection', (socket) => {
