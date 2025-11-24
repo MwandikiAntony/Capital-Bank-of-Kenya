@@ -1,10 +1,8 @@
-// src/utils/api.js
 import axios from "axios";
 
-// Use deployed API in production, localhost in dev
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
-  withCredentials: true, // ✅ include cookies
+  baseURL: process.env.REACT_APP_API_URL,
+  withCredentials: true, // allow cookies
 });
 
 api.interceptors.request.use(
