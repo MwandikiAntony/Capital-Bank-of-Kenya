@@ -72,7 +72,7 @@ const b2cWithdraw = async (req, res) => {
     const { phone, amount, userId } = req.body;
     if (!phone || !amount) return res.status(400).json({ error: "Phone and amount required" });
 
-    // ✅ Check balance first
+    // Check balance first
     const checkBalance = await pool.query("SELECT balance FROM accounts WHERE user_id=$1", [userId]);
     if (!checkBalance.rows.length) return res.status(404).json({ error: "Account not found" });
 

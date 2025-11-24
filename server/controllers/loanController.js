@@ -10,7 +10,7 @@ const applyLoan = async (req, res) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    // ✅ Parse and validate inputs
+    // Parse and validate inputs
     amount = parseFloat(amount);
     repaymentMonths = parseInt(repaymentMonths);
 
@@ -18,20 +18,20 @@ const applyLoan = async (req, res) => {
       return res.status(400).json({ message: "Invalid amount or repayment period" });
     }
 
-    // ✅ Check user exists
+    // Check user exists
     const user = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
     if (user.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ Count fully repaid loans
+    // Count fully repaid loans
     const repaidResult = await db.query(
       "SELECT COUNT(*) FROM loans WHERE user_id = $1 AND status = 'REPAID'",
       [userId]
     );
     const repaidCount = parseInt(repaidResult.rows[0].count);
 
-    // ✅ Determine max allowed based on history
+    // Determine max allowed based on history
     let maxAllowed = 100;
     if (repaidCount === 1) maxAllowed = 500;
     else if (repaidCount === 2) maxAllowed = 1000;
@@ -40,7 +40,7 @@ const applyLoan = async (req, res) => {
     else if (repaidCount === 5) maxAllowed = 10000;
     else if (repaidCount >= 6) maxAllowed = 20000;
 
-    // ✅ Enforce individual and global limits
+    // Enforce individual and global limits
     if (amount > maxAllowed) {
       return res.status(400).json({
         message: `You are eligible to borrow up to Ksh ${maxAllowed} based on your repayment history.`,
@@ -53,12 +53,12 @@ const applyLoan = async (req, res) => {
       });
     }
 
-    // ✅ Calculate interest and total
+    // Calculate interest and total
     const interestRate = 0.03;
     const interest = amount * interestRate * repaymentMonths;
     const totalPayable = amount + interest;
 
-    // ✅ Insert loan
+    // Insert loan
     const loanResult = await db.query(
       `INSERT INTO loans (user_id, amount, repayment_months, total_payable, status)
        VALUES ($1, $2, $3, $4, 'APPROVED') RETURNING *`,
@@ -79,7 +79,7 @@ await db.query(
   [userId, 'loan_status', `Your loan application with ID ${loan.id} has been submitted.`]
 );
 
-    // ✅ Insert repayment schedule
+    // Insert repayment schedule
     const monthlyInstallment = totalPayable / repaymentMonths;
     for (let i = 1; i <= repaymentMonths; i++) {
       const dueDate = new Date();
