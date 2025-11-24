@@ -16,19 +16,19 @@ export default function Register({ onRegister }) {
     e.preventDefault();
     setError("");
 
-    // ✅ Validate phone format (must start with 07 and 10 digits)
+    // Validate phone format (must start with 07 and 10 digits)
     if (!/^07\d{8}$/.test(phone)) {
       setError("Phone number must be in format 07xxxxxxxx");
       return;
     }
 
-    // ✅ Validate PIN (must be 4 digits)
+    // Validate PIN (must be 4 digits)
     if (!/^\d{4}$/.test(pin)) {
       setError("PIN must be exactly 4 digits");
       return;
     }
 
-    // ✅ Validate ID number (at least 5 digits, Kenyan IDs usually 7–8 digits)
+    // Validate ID number (at least 5 digits, Kenyan IDs usually 7–8 digits)
     if (!/^\d{5,10}$/.test(idNumber)) {
       setError("Enter a valid ID number (5–10 digits)");
       return;

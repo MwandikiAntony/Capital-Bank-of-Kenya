@@ -1,4 +1,3 @@
-// client/src/pages/PrivacyPolicy.js
 import React from "react";
 import { ShieldCheck } from "lucide-react";
 

@@ -1,4 +1,3 @@
-// client/src/pages/Dashboard.js
 import React, { useEffect, useState, useCallback } from "react";
 
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";

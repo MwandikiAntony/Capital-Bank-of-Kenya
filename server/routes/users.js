@@ -9,13 +9,13 @@ router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { phone, national_id } = req.body;
 
-  // ✅ Parse and validate ID
+  // Parse and validate ID
   const parsedId = parseInt(id, 10);
   if (isNaN(parsedId)) {
     return res.status(400).json({ error: 'Invalid user ID' });
   }
 
-  // ✅ Optional: Validate body inputs
+  // Optional: Validate body inputs
   if (!phone || !national_id) {
     return res.status(400).json({ error: 'Phone and national_id are required' });
   }

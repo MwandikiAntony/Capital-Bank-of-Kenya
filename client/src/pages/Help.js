@@ -1,4 +1,3 @@
-// client/src/pages/Help.js
 import React from "react";
 import { HelpCircle, Phone, Lock, FileText } from "lucide-react";
 

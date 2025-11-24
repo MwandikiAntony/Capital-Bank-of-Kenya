@@ -1,4 +1,3 @@
-// client/src/pages/ContactUs.js
 import React, { useState } from "react";
 import { Mail, User, MessageSquare } from "lucide-react";
 

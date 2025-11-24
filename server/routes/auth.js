@@ -6,10 +6,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 
 
-// ❌ Removed: const jwt = require('jsonwebtoken');
-// ❌ Removed: const authenticateToken = require("../middleware/authenticateToken");
-
-// ✅ Register
+// Register
 router.post('/register', async (req, res) => {
   const { name, email, phone, id_number, pin } = req.body;
   if (!name || !email || !phone || !id_number || !pin) {
@@ -65,7 +62,7 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       message: "Registration successful. Verify your phone and email.",
       userId: user.id,
-      token, // ✅ include token
+      token, // include token
       phone_verified: user.phone_verified,
       email_verified: user.email_verified,
     });
@@ -92,7 +89,7 @@ function verifyToken(req, res, next) {
     res.status(403).json({ error: "Invalid or expired token" });
   }
 }
-// ✅ Add this route to get user info
+// Add this route to get user info
 router.get("/user", verifyToken, async (req, res) => {
   try {
     const result = await pool.query(
@@ -119,7 +116,7 @@ router.get("/user", verifyToken, async (req, res) => {
 
 
 
-// ✅ Logout
+// Logout
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -130,7 +127,7 @@ router.post('/logout', (req, res) => {
   });
 });
 
-// ✅ Verify Phone OTP
+// Verify Phone OTP
 router.post('/verify-phone', async (req, res) => {
   const { userId, otp } = req.body;
   if (!userId || !otp) {
@@ -179,7 +176,7 @@ router.post('/verify-phone', async (req, res) => {
   }
 });
 
-// ✅ Resend Phone OTP
+// Resend Phone OTP
 router.post('/resend-phone-otp', async (req, res) => {
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ error: "User ID required" });
@@ -217,7 +214,7 @@ router.post('/resend-phone-otp', async (req, res) => {
 });
 
 
-// ✅ Verify Email OTP
+// Verify Email OTP
 router.post('/verify-email', async (req, res) => {
   const { userId, otp } = req.body;
   if (!userId || !otp) {
@@ -288,7 +285,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // ✅ SESSION SETUP HERE
+    // SESSION SETUP HERE
     req.session.userId = user.id; // ✅ Store user ID in session
 
     res.json({

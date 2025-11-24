@@ -20,7 +20,7 @@ export default function VerifyEmail() {
 
     alert(res.data.message);
 
-    // ✅ Fetch updated user data
+    // Fetch updated user data
     const token = localStorage.getItem("token");
     const userRes = await axios.get("http://localhost:5000/api/auth/user", {
       headers: { Authorization: `Bearer ${token}` }
@@ -28,10 +28,10 @@ export default function VerifyEmail() {
 
     const updatedUser = userRes.data.user;
 
-    // ✅ Update localStorage
+    // Update localStorage
     localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    // ✅ Navigate based on updated verification status
+    // Navigate based on updated verification status
     navigate("/dashboard/overview");
 
   } catch (err) {
