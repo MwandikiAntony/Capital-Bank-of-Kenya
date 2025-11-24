@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
+import api from "../api";
 export default function Register({ onRegister }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -39,15 +39,13 @@ export default function Register({ onRegister }) {
       // Convert phone to 2547xxxxxxxx
       const formattedPhone = "254" + phone.slice(1);
 
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        {
-          name,
-          email,
-          phone: formattedPhone,
-          id_number: idNumber, // ✅ include ID number
-          pin,
-        },
+      const res = await api.post("/auth/register", {
+  name,
+  email,
+  phone: formattedPhone,
+  id_number: idNumber,
+  pin,
+},
         { withCredentials: true } // <-- session cookie support if applicable
       );
 
