@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-
+import { useMemo } from 'react';
 import { FaWallet, FaExchangeAlt, FaUserEdit, FaCog, FaBell, FaCreditCard, FaFileInvoice, FaChartLine, FaBars } from "react-icons/fa";
 import UpdateProfile from "../components/UpdateProfile";
 import LoanApplication from "../components/LoanApplication";
@@ -10,7 +10,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../utils/api";
 import { fetchNotifications as fetchNotificationsService } from "../services/notifications";
-
+import Statements from "../pages/Statements";
 
 
 // Overview Component
@@ -191,7 +191,10 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [loans] = useState([]);
   
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedUser = useMemo(() => {
+  return JSON.parse(localStorage.getItem("user"));
+}, []);
+
   const currentUser = JSON.parse(localStorage.getItem("user"));
   const [, setPhone] = useState(currentUser?.phone || "");
   const [, setNationalId] = useState(currentUser?.national_id || "");
@@ -230,6 +233,7 @@ const fetchAccount = useCallback(async () => {
     const res = await api.get("/account");
     setBalance(res.data.balance);
     setTransactions(res.data.transactions);
+
     if (storedUser) {
       setUser(storedUser);
       setPhone(storedUser.phone || "");
@@ -238,7 +242,8 @@ const fetchAccount = useCallback(async () => {
   } catch (err) {
     console.error("Error fetching account:", err.response?.data || err.message);
   }
-}, []);  // <-- removed storedUser from dependency array
+}, [storedUser]);
+  // <-- removed storedUser from dependency array
 
 useEffect(() => {
   fetchAccount();
@@ -497,7 +502,10 @@ const transfer = async () => {
 
 
 
-  {activeSection === "statements" && <p>Statements section coming soon.</p>}
+  {activeSection === "statements" && (
+  <Statements transactions={transactions} darkMode={darkMode} />
+)}
+
 </main>
 
       </div>

@@ -8,7 +8,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState(null);
-  const socketRef = useRef(null); // ✅ useRef to persist socket across renders
+  const socketRef = useRef(null); // useRef to persist socket across renders
 
   // Fetch userId from localStorage on mount
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ Only create socket once
+    // Only create socket once
     if (!socketRef.current) {
       socketRef.current = io("http://localhost:5000", {
         transports: ["websocket", "polling"], // allow fallback
@@ -63,7 +63,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
         userId,
       });
 
-      setMessage("✅ STK Push sent! Check your phone to complete payment.");
+      setMessage(" STK Push sent! Check your phone to complete payment.");
       addNotification?.(`Deposit request of Ksh ${amount} sent to ${phone}.`);
 
       setAmount("");
