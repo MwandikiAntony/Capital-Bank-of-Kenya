@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../utils/api";
 
 export default function Login({onLogin}) {
   const [phone, setPhone] = useState(""); // changed from email
@@ -17,14 +18,14 @@ export default function Login({onLogin}) {
   
     try {
       // 1. Login
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+      const res = await api.post(
+        "/auth/login",
         { phone, pin },
         { withCredentials: true } // ⬅️ needed for session cookie
       );
       console.log("Login message:", res.data.message);
       // 2. Fetch profile (no token needed)
-      const profileRes = await axios.get("http://localhost:5000/api/auth/user", {
+      const profileRes = await api.get("/auth/user", {
         withCredentials: true, // ⬅️ important for cookie-based sessions
       });
   

@@ -1,6 +1,7 @@
 // client/src/components/STKPay.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import api from '../utils/api';
 
 export default function STKPay({ onDone }) {
   const [phone, setPhone] = useState('');
@@ -12,7 +13,7 @@ export default function STKPay({ onDone }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/mpesa/stk/push',
+      const res = await api.post('/mpesa/stk/push',
         { phone, amount },
         { headers: { Authorization: `Bearer ${token}` } }
       );
