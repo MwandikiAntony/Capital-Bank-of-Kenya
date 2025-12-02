@@ -260,44 +260,42 @@ router.post('/verify-email', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-// Login
+
+
 router.post('/login', async (req, res) => {
   const { phone, pin } = req.body;
-  if (!phone || !pin) {
-    return res.status(400).json({ error: 'Phone and PIN are required' });
-  }
+
+  if (!phone || !pin) return res.status(400).json({ error: 'Phone and PIN are required' });
 
   try {
     const result = await pool.query("SELECT * FROM users WHERE phone = $1", [phone]);
-    if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+    if (result.rows.length === 0) return res.status(400).json({ error: 'Invalid credentials' });
 
     const user = result.rows[0];
 
     if (!user.phone_verified || !user.email_verified) {
-      return res.status(403).json({
-        error: "Please verify your phone and email before logging in."
-      });
+      return res.status(403).json({ error: "Please verify your phone and email before logging in." });
     }
 
     const isMatch = await bcrypt.compare(pin, user.pin);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
-    // SESSION SETUP HERE
-    req.session.userId = user.id; // ✅ Store user ID in session
+    // Generate JWT
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    // Optional: store session
+    req.session.userId = user.id;
 
     res.json({
       message: "Login successful",
+      token, // ✅ Return token
       user: {
         id: user.id,
         phone_verified: user.phone_verified,
         email_verified: user.email_verified,
         phone: user.phone,
         email: user.email,
-        full_name: user.full_name,
+        full_name: user.name,
       }
     });
 
@@ -306,6 +304,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 module.exports = router;
