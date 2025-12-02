@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import api from "./api";
 export default function VerifyEmail() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -13,7 +13,7 @@ export default function VerifyEmail() {
   setError("");
 
   try {
-    const res = await axios.post("http://localhost:5000/api/auth/verify-email", {
+    const res = await api.post("/auth/verify-email", {
       userId,
       otp,
     });
@@ -22,7 +22,7 @@ export default function VerifyEmail() {
 
     // Fetch updated user data
     const token = localStorage.getItem("token");
-    const userRes = await axios.get("http://localhost:5000/api/auth/user", {
+    const userRes = await api.get("/auth/user", {
       headers: { Authorization: `Bearer ${token}` }
     });
 
