@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import api from "./api";
+import api from "../utils/api";
+
 
 export default function VerifyPhone() {
   const [otp, setOtp] = useState("");
