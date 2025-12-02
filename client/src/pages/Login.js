@@ -1,64 +1,67 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
 
-export default function Login({onLogin}) {
-  const [phone, setPhone] = useState(""); // changed from email
-  const [pin, setPin] = useState("");     // changed from password
+export default function Login({ onLogin }) {
+  const [phone, setPhone] = useState("");
+  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-    
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
+
     try {
-      // 1. Login
-      const res = await api.post(
-        "/auth/login",
-        { phone, pin },
-        { withCredentials: true } // ⬅️ needed for session cookie
-      );
-      console.log("Login message:", res.data.message);
-      // 2. Fetch profile (no token needed)
+      // 1️⃣ Login request
+      const res = await api.post("/auth/login", { phone, pin });
+      const { token } = res.data;
+
+      if (!token) {
+        setError("Login failed: No token received");
+        setLoading(false);
+        return;
+      }
+
+      // Store token in localStorage
+      localStorage.setItem("token", token);
+
+      // 2️⃣ Fetch user profile with Authorization header
       const profileRes = await api.get("/auth/user", {
-        withCredentials: true, // ⬅️ important for cookie-based sessions
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-  
+
       const user = profileRes.data.user;
-  
       if (!user) {
         setError("Failed to fetch user profile.");
         setLoading(false);
         return;
       }
-  
+
+      // Store user info in localStorage
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userPhone", user.phone);
-  
+
       if (onLogin) onLogin(user);
-  
+
+      // Redirect based on verification
       if (!user.phone_verified) {
         navigate("/verify-phone");
       } else {
         navigate("/dashboard");
       }
-  
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.error || "Login failed. Please check your credentials."
-      );
+      setError(err.response?.data?.error || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
-  
   
 
 
