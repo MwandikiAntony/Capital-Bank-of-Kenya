@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "./api";
 
 export default function VerifyPhone() {
   const [otp, setOtp] = useState("");
@@ -25,7 +26,7 @@ try {
     return;
   }
 
-  const res = await axios.post(
+  const res = await api.post(
     "/auth/verify-phone",
     {
       userId,
@@ -43,7 +44,7 @@ try {
 
     // Fetch updated user data
    
-    const userRes = await axios.get("/auth/user", {
+    const userRes = await api.get("/auth/user", {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -74,7 +75,7 @@ try {
     setResendLoading(true);
 
     try {
-      const res = await axios.post("/auth/resend-phone-otp", {
+      const res = await api.post("/auth/resend-phone-otp", {
         userId,
       });
       alert(res.data.message);
