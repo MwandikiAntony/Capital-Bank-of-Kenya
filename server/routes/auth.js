@@ -48,9 +48,10 @@ router.post('/register', async (req, res) => {
       [user.id, otp, expiresAt, false]
     );
     await pool.query(
-      "INSERT INTO email_otps (user_id, otp, expires_at) VALUES ($1, $2, $3)",
-      [user.id, emailOtp, expiresAt]
-    );
+  "INSERT INTO email_otps (user_id, email, otp, expires_at, used) VALUES ($1, $2, $3, $4, $5)",
+  [user.id, email, emailOtp, expiresAt, false]
+);
+
 
     console.log(`📲 OTP for ${phone}: ${otp}`);
     console.log(`📧 Email OTP for ${email}: ${emailOtp}`);
