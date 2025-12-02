@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
-
+import api from "../utils/api";
 export default function Deposit({ addNotification, fetchAccount, darkMode }) {
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,7 +25,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
 
     // Only create socket once
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
+      socketRef.current = io("https://capital-bank-of-kenya.onrender.com", {
         transports: ["websocket", "polling"], // allow fallback
         withCredentials: true,
       });
@@ -57,7 +56,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/mpesa/stkpush", {
+      await api.post("/mpesa/stkpush", {
         phone,
         amount,
         userId,

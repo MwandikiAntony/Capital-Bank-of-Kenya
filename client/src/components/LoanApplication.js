@@ -1,13 +1,13 @@
 // frontend/src/components/LoanApplication.js
 
 import React, { useState } from "react";
+import api from "../utils/api"; // import your Axios instance
 
 export default function LoanApplication({ userId, fetchNotifications, addNotification }) {
   const [amount, setAmount] = useState("");
   const [repaymentMonths, setRepaymentMonths] = useState("1");
   const [message, setMessage] = useState("");
   const [loan, setLoan] = useState(null);
-  const token = localStorage.getItem("token");
 
   const handleApply = async () => {
     if (!amount || !repaymentMonths) {
@@ -16,33 +16,21 @@ export default function LoanApplication({ userId, fetchNotifications, addNotific
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/loans/apply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: Number(amount),
-          repaymentMonths: Number(repaymentMonths),
-        }),
-        
+      const res = await api.post("/loans/apply", {
+        amount: Number(amount),
+        repaymentMonths: Number(repaymentMonths),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setMessage(data.error || "Loan application failed");
-      } else {
-        setMessage(data.message || "Loan application successful");
-        setLoan(data.loan);
-        // After loan request success:
-fetchNotifications();
-addNotification("Loan request submitted successfully");
+      setMessage(res.data.message || "Loan application successful");
+      setLoan(res.data.loan);
 
-      }
+      // After loan request success:
+      fetchNotifications();
+      addNotification("Loan request submitted successfully");
+
     } catch (err) {
-      setMessage("Network error. Please try again.");
       console.error(err);
+      setMessage(err.response?.data?.error || "Network error. Please try again.");
     }
   };
 

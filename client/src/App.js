@@ -1,6 +1,5 @@
 // client/src/App.js
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,6 +18,7 @@ import Help from "./pages/Help";
 import ContactUs from "./pages/ContactUs";
 import VerifyPhone from "./pages/VerifyPhone";
 import VerifyEmail from "./pages/VerifyEmail";
+import api from "./utils/api";
 
 // ✅ Safe localStorage parser
 
@@ -90,8 +90,8 @@ export default function App() {
 
     if (!token) return;
 
-    axios
-      .get("http://localhost:5000/api/auth/user", {
+    api
+      .get("/auth/user", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

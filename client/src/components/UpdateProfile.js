@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 
 export default function UpdateProfile({ currentUser }) {
   const [accountDetails, setAccountDetails] = useState({
@@ -12,7 +12,7 @@ export default function UpdateProfile({ currentUser }) {
     const fetchAccount = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/auth/user", {
+        const res = await api.get("/auth/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

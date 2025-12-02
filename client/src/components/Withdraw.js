@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"; 
-import axios from "axios";
 import { io } from "socket.io-client";
+import api from "../utils/api";
 
 export default function Withdraw({ addNotification, fetchAccount, darkMode }) {
   const [amount, setAmount] = useState("");
@@ -26,7 +26,7 @@ export default function Withdraw({ addNotification, fetchAccount, darkMode }) {
 
     // ✅ create socket only if not already created
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", { transports: ["websocket", "polling"] });
+      socketRef.current = io("https://capital-bank-of-kenya.onrender.com", { transports: ["websocket", "polling"] });
 
       socketRef.current.on("connect", () => {
         console.log("Connected to Socket.IO:", socketRef.current.id);
@@ -58,7 +58,7 @@ export default function Withdraw({ addNotification, fetchAccount, darkMode }) {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/mpesa/withdraw", {
+      const res = await api.post("/mpesa/withdraw", {
         phone,
         amount,
         userId,
