@@ -26,7 +26,7 @@ try {
   }
 
   const res = await axios.post(
-    "http://localhost:5000/api/auth/verify-phone",
+    "/auth/verify-phone",
     {
       userId,
       otp,
@@ -43,7 +43,7 @@ try {
 
     // Fetch updated user data
    
-    const userRes = await axios.get("http://localhost:5000/api/auth/user", {
+    const userRes = await axios.get("/auth/user", {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -74,7 +74,7 @@ try {
     setResendLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/resend-phone-otp", {
+      const res = await axios.post("/auth/resend-phone-otp", {
         userId,
       });
       alert(res.data.message);
