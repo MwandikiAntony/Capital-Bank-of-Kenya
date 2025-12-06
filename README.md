@@ -6,6 +6,13 @@ This app provides a simulated digital banking experience with secure login/regis
 
 ---
 
+## Live Demo
+
+[![Frontend](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://capital-bank-of-kenya.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-API-blue)](https://capital-bank-of-kenya.onrender.com/api)
+
+---
+
 ## 🚀 Features
 
 - 🔐 **Authentication**: User Registration & User Login  
