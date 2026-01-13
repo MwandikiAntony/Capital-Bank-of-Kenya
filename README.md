@@ -1,5 +1,5 @@
 
-# 🏦 Capital Bank Application
+# Capital Bank Application
 
 A modern, professional **Bank Web Application** built with **React, Node.js, Express, and MongoDB**.  
 This app provides a simulated digital banking experience with secure login/register, transaction management, and profile settings.
@@ -13,7 +13,7 @@ This app provides a simulated digital banking experience with secure login/regis
 
 ---
 
-## 🚀 Features
+## Features
 
 - 🔐 **Authentication**: User Registration & User Login  
 - 👤 **User Dashboard**: Overview of the users account
