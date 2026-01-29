@@ -50,23 +50,24 @@ exports.register = async (req, res) => {
 
     const userId = newUser.rows[0].id;
     // generate account number
-
-  const existingAccount = await pool.query(
-  "SELECT * FROM accounts WHERE user_id = $1",
+const existingAccount = await pool.query(
+  "SELECT * FROM accounts WHERE user_id=$1",
   [userId]
 );
 
-if (existingAccount.rows.length > 0) {
-  console.log("Account already exists for user", userId);
-} else {
+if (existingAccount.rows.length === 0) {
   const accountNumber =
-  "CBK" + Date.now().toString().slice(-8) + Math.floor(Math.random() * 10);
+    "CBK" + Date.now().toString().slice(-8) + Math.floor(Math.random() * 10);
+
   await pool.query(
     `INSERT INTO accounts (user_id, account_number, balance)
      VALUES ($1, $2, 0)`,
     [userId, accountNumber]
   );
+} else {
+  console.log(`Account already exists for user ${userId}, skipping creation.`);
 }
+
 
 
 
