@@ -12,6 +12,9 @@ const authRoutes = require('./routes/auth');
 const mpesaRoutes = require('./routes/mpesa');
 const usersRoutes = require('./routes/users');
 const loanRoutes = require('./routes/loanRoutes');
+const initDb = require("./config/initDb");
+
+
 
 const pool = require('./db');
 
@@ -27,6 +30,9 @@ app.use(session({
     httpOnly: true,
   },
 }));
+
+initDb();
+
 
 // CORS 
 app.use(cors({
