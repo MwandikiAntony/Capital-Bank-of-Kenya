@@ -58,6 +58,11 @@ const initDb = async () => {
       );
     `);
 
+     await pool.query(`
+      ALTER TABLE accounts
+      ADD COLUMN IF NOT EXISTS account-number VARCHAR(50) UNIQUE;
+    `);
+
     // LOANS
     await pool.query(`
       CREATE TABLE IF NOT EXISTS loans (
