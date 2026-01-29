@@ -11,6 +11,7 @@ const initDb = async () => {
       name VARCHAR(150) NOT NULL,
       email VARCHAR(150) UNIQUE NOT NULL,
       phone VARCHAR(20) UNIQUE NOT NULL,
+      id_number VARCHAR(50) UNIQUE,
       pin TEXT NOT NULL,
       email_verified BOOLEAN DEFAULT FALSE,
       phone_verified BOOLEAN DEFAULT FALSE,
