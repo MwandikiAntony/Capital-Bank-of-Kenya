@@ -12,9 +12,6 @@ const authRoutes = require('./routes/auth');
 const mpesaRoutes = require('./routes/mpesa');
 const usersRoutes = require('./routes/users');
 const loanRoutes = require('./routes/loanRoutes');
-const initDb = require("./config/initDb");
-
-
 
 const pool = require('./db');
 
@@ -30,8 +27,6 @@ app.use(session({
     httpOnly: true,
   },
 }));
-
-
 
 // CORS 
 app.use(cors({
@@ -115,13 +110,7 @@ function emitBalanceUpdate(userId) {
 module.exports = { emitBalanceUpdate };
 
 // ✅ Start server
-
 const PORT = process.env.PORT || 5000;
-
-(async () => {
-  await initDb();   // DB ready first
-  server.listen(PORT, () =>
-    console.log(`🚀 Server running on port ${PORT}`)
-  );
-})();
-
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
