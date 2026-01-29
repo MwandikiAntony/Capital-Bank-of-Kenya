@@ -48,15 +48,28 @@ const initDb = async () => {
       );
     `);
 
-    // ACCOUNTS
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS accounts (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-        balance NUMERIC(12,2) DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+  
+
+// accounts
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    account_number VARCHAR(20) UNIQUE NOT NULL,
+    balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+//indexes
+await pool.query(`
+  CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id);
+`);
+
+await pool.query(`
+  CREATE INDEX IF NOT EXISTS idx_accounts_account_number ON accounts(account_number);
+`);
+
 
      await pool.query(`
       ALTER TABLE accounts
@@ -147,26 +160,6 @@ const initDb = async () => {
 
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawals(user_id);
-    `);
-
-    // TRIGGER
-    await pool.query(`
-      CREATE OR REPLACE FUNCTION create_account_after_user()
-      RETURNS TRIGGER AS $$
-      BEGIN
-        INSERT INTO accounts(user_id, balance)
-        VALUES (NEW.id, 0)
-        ON CONFLICT (user_id) DO NOTHING;
-        RETURN NEW;
-      END;
-      $$ LANGUAGE plpgsql;
-
-      DROP TRIGGER IF EXISTS trg_create_account ON users;
-
-      CREATE TRIGGER trg_create_account
-      AFTER INSERT ON users
-      FOR EACH ROW
-      EXECUTE FUNCTION create_account_after_user();
     `);
 
     console.log("✅ Database ready");

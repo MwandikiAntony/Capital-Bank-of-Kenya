@@ -49,6 +49,17 @@ exports.register = async (req, res) => {
     );
 
     const userId = newUser.rows[0].id;
+    // generate account number
+const accountNumber =
+  "CBK" + Date.now().toString().slice(-8) + Math.floor(Math.random() * 10);
+
+// create account explicitly
+await pool.query(
+  `INSERT INTO accounts (user_id, account_number, balance)
+   VALUES ($1, $2, 0)`,
+  [userId, accountNumber]
+);
+
 
     // generate email token
     const emailToken = crypto.randomBytes(20).toString("hex");
