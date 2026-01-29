@@ -16,7 +16,14 @@ const initDb = async () => {
       email_verified BOOLEAN DEFAULT FALSE,
       phone_verified BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+   );
+`);
+
+await pool.query(`
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS id_number VARCHAR(50) UNIQUE;
+`);
+
 
     -- EMAIL TOKENS
     CREATE TABLE IF NOT EXISTS email_tokens (
