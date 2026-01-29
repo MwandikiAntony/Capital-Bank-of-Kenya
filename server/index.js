@@ -31,7 +31,6 @@ app.use(session({
   },
 }));
 
-initDb();
 
 
 // CORS 
@@ -116,7 +115,13 @@ function emitBalanceUpdate(userId) {
 module.exports = { emitBalanceUpdate };
 
 // ✅ Start server
+
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+
+(async () => {
+  await initDb();   // DB ready first
+  server.listen(PORT, () =>
+    console.log(`🚀 Server running on port ${PORT}`)
+  );
+})();
+
