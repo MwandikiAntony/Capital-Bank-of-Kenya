@@ -1,4 +1,3 @@
-// client/src/App.js
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -36,7 +35,7 @@ function Home({ currentUser }) {
     <div className="min-h-screen flex flex-col font-sans bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-white">
 
       {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/80 backdrop-blur border-b">
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl shadow-sm dark:bg-gray-950/80 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-blue-900 dark:text-white">
             Capital Bank
@@ -59,66 +58,67 @@ function Home({ currentUser }) {
         </div>
       </header>
 
-      {/* ================= HERO ================= */}
-      <section className="bg-gradient-to-br from-blue-900 via-indigo-800 to-blue-950 text-white">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 px-6 py-24 items-center">
+      {/* ================= HERO ================= */} 
+<section className="bg-gradient-to-br from-blue-900 via-indigo-800 to-blue-950 text-white">
+  <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 px-6 py-24 items-center">
 
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-              Banking that works <br /> as fast as you do
-            </h2>
+    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}>
+      <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+        Banking that works <br /> as fast as you do
+      </h2>
 
-            <p className="mt-6 text-blue-200 text-lg">
-              Save smarter, transfer instantly, and access loans anytime —
-              secure, simple and modern.
-            </p>
+      <p className="mt-6 text-blue-200 text-lg">
+        Save smarter, transfer instantly, and access loans anytime.
+        Secure, Simple and Modern.
+      </p>
 
-            <div className="flex gap-4 mt-8 flex-wrap">
-              {!currentUser && (
-                <>
-                  <Link
-                    to="/register"
-                    className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-xl font-semibold flex items-center gap-2"
-                  >
-                    Get Started <ArrowRight size={18} />
-                  </Link>
+      <div className="flex gap-4 mt-8 flex-wrap">
+        {!currentUser && (
+          <>
+            <Link
+              to="/register"
+              className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 hover:scale-105"
+            >
+              Get Started <ArrowRight size={18} />
+            </Link>
 
-                  <Link
-                    to="/login"
-                    className="px-8 py-3 bg-white/10 border border-white/30 rounded-xl"
-                  >
-                    Login
-                  </Link>
-                </>
-              )}
+            <Link
+              to="/login"
+              className="px-8 py-3 bg-white/10 border border-white/30 rounded-xl transition-all duration-300 hover:scale-105"
+            >
+              Login
+            </Link>
+          </>
+        )}
 
-              {currentUser && (
-                <Link
-                  to="/dashboard"
-                  className="px-8 py-3 bg-yellow-500 rounded-xl font-semibold"
-                >
-                  Dashboard
-                </Link>
-              )}
-            </div>
-          </motion.div>
-
-          {/* App preview */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+        {currentUser && (
+          <Link
+            to="/dashboard"
+            className="px-8 py-3 bg-yellow-500 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
           >
-            <p className="text-sm text-blue-200">Available Balance</p>
-            <h3 className="text-4xl font-bold mt-2">$12,450.00</h3>
-            <div className="mt-6 space-y-2 text-sm text-blue-200">
-              <p>✔ Send Money</p>
-              <p>✔ Pay Bills</p>
-              <p>✔ Apply Loans</p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            Dashboard
+          </Link>
+        )}
+      </div>
+    </motion.div>
+
+    {/* App preview */}
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20"
+    >
+      <p className="text-sm text-blue-200">Available Balance</p>
+      <h3 className="text-4xl font-bold mt-2">Ksh. 12,450.00</h3>
+      <div className="mt-6 space-y-2 text-sm text-blue-200">
+        <p>✔ Send Money</p>
+        <p>✔ Pay Bills</p>
+        <p>✔ Apply Loans</p>
+      </div>
+    </motion.div>
+  </div>
+</section>
+
 
       {/* ================= FEATURES ================= */}
       <section className="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-4 gap-8">
@@ -143,7 +143,7 @@ function Home({ currentUser }) {
           <h3 className="text-3xl font-bold mb-10">Simple. Clean. Powerful.</h3>
 
           <div className="rounded-3xl shadow-2xl bg-white dark:bg-gray-900 p-10">
-            <p className="text-gray-500">Dashboard preview area (add screenshot later)</p>
+            <p className="text-gray-500">Dashboard preview area</p>
           </div>
         </div>
       </section>
@@ -182,7 +182,8 @@ function Home({ currentUser }) {
           <h3 className="text-3xl font-bold">Open your free account today</h3>
           <Link
             to="/register"
-            className="inline-block mt-8 px-10 py-4 bg-yellow-500 rounded-xl font-semibold"
+            className="inline-block mt-8 px-10 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-105 shadow-lg
+             rounded-xl font-semibold"
           >
             Create Account
           </Link>
@@ -202,34 +203,91 @@ function Home({ currentUser }) {
 
 function Feature({ icon, title, text }) {
   return (
-    <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-md hover:shadow-xl transition text-center">
-      <div className="w-12 h-12 mx-auto flex items-center justify-center rounded-xl bg-blue-100 text-blue-700 mb-4">
+    <motion.div
+      whileHover={{ y: -8, scale: 1.03 }}
+      className="
+        group
+        bg-white/80 dark:bg-gray-900/80
+        backdrop-blur-xl
+        p-8
+        rounded-3xl
+        border border-gray-200 dark:border-gray-800
+        shadow-lg
+        hover:shadow-2xl
+        hover:border-blue-300
+        transition-all duration-300
+        text-center
+      "
+    >
+      <div
+        className="
+          w-14 h-14 mx-auto flex items-center justify-center
+          rounded-2xl
+          bg-gradient-to-br from-blue-900 to-indigo-700
+          text-white
+          shadow-md
+          group-hover:scale-110
+          transition
+          mb-5
+        "
+      >
         {icon}
       </div>
-      <h3 className="font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-gray-500">{text}</p>
-    </div>
+
+      <h3 className="font-semibold text-lg mb-2 text-blue-950 dark:text-white">
+        {title}
+      </h3>
+
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        {text}
+      </p>
+    </motion.div>
   );
 }
+
 
 function Stat({ number, label }) {
   return (
-    <div>
-      <p className="text-3xl font-bold text-blue-900 dark:text-white">{number}</p>
-      <p className="text-gray-500 text-sm">{label}</p>
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 shadow-md">
+      <p className="text-4xl font-extrabold text-blue-900 dark:text-white">
+        {number}
+      </p>
+      <p className="text-gray-500 text-sm mt-2 tracking-wide uppercase">
+        {label}
+      </p>
     </div>
   );
 }
 
+
 function Testimonial({ name, text }) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
-      <Star className="text-yellow-400 mb-3" />
-      <p className="text-sm text-gray-600 dark:text-gray-300">"{text}"</p>
-      <p className="mt-3 font-semibold">{name}</p>
-    </div>
+    <motion.div
+      whileHover={{ y: -6 }}
+      className="
+        bg-white/80 dark:bg-gray-900/80
+        backdrop-blur-xl
+        p-7
+        rounded-3xl
+        shadow-lg
+        border border-gray-200 dark:border-gray-800
+        hover:shadow-2xl
+        transition-all duration-300
+      "
+    >
+      <Star className="text-yellow-500 mb-3" />
+
+      <p className="text-sm text-gray-600 dark:text-gray-300 italic">
+        "{text}"
+      </p>
+
+      <p className="mt-4 font-semibold text-blue-900 dark:text-white">
+        — {name}
+      </p>
+    </motion.div>
   );
 }
+
 
 function FAQ({ question, answer }) {
   const [open, setOpen] = useState(false);
