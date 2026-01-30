@@ -102,7 +102,6 @@ function Home({ currentUser }) {
             </div>
           </motion.div>
 
-          /* ================= ANIMATED BALANCE CARD ================= */
 
     <motion.div
       initial={{ opacity: 0, x: 40 }}
