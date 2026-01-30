@@ -102,22 +102,24 @@ function Home({ currentUser }) {
             </div>
           </motion.div>
 
-          {/* Animated Balance Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.03, y: -2 }}
-            transition={{ type: "spring", stiffness: 120 }}
-            className="bg-gradient-to-br from-blue-900/30 via-indigo-800/30 to-blue-950/30 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-blue-200/30 transition-all duration-300"
-          >
-            <p className="text-sm text-blue-200">Available Balance</p>
-            <h3 className="text-4xl font-bold mt-2">Ksh. 12,450.00</h3>
-            <div className="mt-6 space-y-2 text-sm text-blue-200">
-              <p>✔ Send Money</p>
-              <p>✔ Pay Bills</p>
-              <p>✔ Apply Loans</p>
-            </div>
-          </motion.div>
+          /* ================= ANIMATED BALANCE CARD ================= */
+
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      whileHover={{ scale: 1.03, y: -2 }}
+      transition={{ type: "spring", stiffness: 120 }}
+      className="bg-gradient-to-br from-blue-900/20 via-blue-800/20 to-blue-950/20 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-blue-200/30 transition-all duration-300"
+    >
+      <p className="text-sm text-blue-200">Available Balance</p>
+      <h3 className="text-4xl font-bold mt-2 text-white">Ksh. 12,450.00</h3>
+      <div className="mt-6 space-y-2 text-sm text-blue-200">
+        <p>✔ Send Money</p>
+        <p>✔ Pay Bills</p>
+        <p>✔ Apply Loans</p>
+      </div>
+    </motion.div>
+  
         </div>
       </section>
 
@@ -201,8 +203,7 @@ function Home({ currentUser }) {
   );
 }
 
-/* ================= REUSABLE COMPONENTS ================= */
-
+/* ================= NAVBAR DROPDOWN ================= */
 function NavbarDropdown({ currentUser }) {
   return (
     <div className="relative group">
@@ -210,20 +211,16 @@ function NavbarDropdown({ currentUser }) {
         {currentUser.name}
         <ChevronDown size={16} className="transition group-hover:rotate-180" />
       </button>
-      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-        <Link to="/dashboard" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-800 rounded-xl">
-          Dashboard
-        </Link>
-        <Link to="/profile" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-800 rounded-xl">
-          Profile
-        </Link>
+      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-blue-950 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
+        <Link to="/dashboard" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl">Dashboard</Link>
+        <Link to="/profile" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl">Profile</Link>
         <button
           onClick={() => {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             window.location.reload();
           }}
-          className="w-full text-left px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-800 rounded-xl"
+          className="w-full text-left px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl"
         >
           Logout
         </button>
@@ -232,24 +229,27 @@ function NavbarDropdown({ currentUser }) {
   );
 }
 
+
+/* ================= REUSABLE COMPONENTS ================= */
+
 function Feature({ icon, title, text }) {
   return (
     <motion.div
       whileHover={{ y: -8, scale: 1.03 }}
-      className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-2xl hover:border-blue-300 transition-all duration-300 text-center"
+      className="group bg-white/90 dark:bg-blue-950/80 backdrop-blur-xl p-8 rounded-3xl border border-blue-200/30 shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
     >
-      <div className="w-14 h-14 mx-auto flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-900 to-indigo-700 text-white shadow-md group-hover:scale-110 transition mb-5">
+      <div className="w-14 h-14 mx-auto flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-900 to-blue-700 text-white shadow-md group-hover:scale-110 transition mb-5">
         {icon}
       </div>
-      <h3 className="font-semibold text-lg mb-2 text-blue-950 dark:text-white">{title}</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{text}</p>
+      <h3 className="font-semibold text-lg mb-2 text-blue-900 dark:text-white">{title}</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-300">{text}</p>
     </motion.div>
   );
 }
 
 function Stat({ number, label }) {
   return (
-    <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 shadow-md transition-all duration-300">
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900 dark:to-blue-950 shadow-md transition-all duration-300">
       <p className="text-4xl font-extrabold text-blue-900 dark:text-white">{number}</p>
       <p className="text-gray-500 text-sm mt-2 tracking-wide uppercase">{label}</p>
     </div>
@@ -260,9 +260,9 @@ function Testimonial({ name, text }) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-7 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-800 hover:shadow-2xl transition-all duration-300"
+      className="bg-white/90 dark:bg-blue-950/80 backdrop-blur-xl p-7 rounded-3xl shadow-lg border border-blue-200/30 hover:shadow-2xl transition-all duration-300"
     >
-      <Star className="text-yellow-500 mb-3" />
+      <Star className="text-yellow-400 mb-3" />
       <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{text}"</p>
       <p className="mt-4 font-semibold text-blue-900 dark:text-white">— {name}</p>
     </motion.div>
