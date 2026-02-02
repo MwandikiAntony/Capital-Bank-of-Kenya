@@ -162,51 +162,6 @@ function Home({ currentUser }) {
         </div>
       </section>
 
-     {/* ================= PARTNERS ================= */}
-<section className="py-14 text-center text-gray-400 text-sm">
-  <h4 className="text-lg font-semibold mb-6 text-gray-700 dark:text-gray-300">
-    Trusted by businesses & partners worldwide
-  </h4>
-
-  <div className="flex justify-center gap-12 mt-6">
-    {/* Visa */}
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      className="flex flex-col items-center transition-all duration-300"
-    >
-      <span className="mb-2 text-gray-600 dark:text-gray-400 font-medium">Visa</span>
-      <img src="/images/visa.webp" alt="Visa" className="h-10 object-contain" />
-    </motion.div>
-
-    {/* Mastercard */}
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      className="flex flex-col items-center transition-all duration-300"
-    >
-      <span className="mb-2 text-gray-600 dark:text-gray-400 font-medium">Mastercard</span>
-      <img src="/images/mastercard.png" alt="Mastercard" className="h-10 object-contain" />
-    </motion.div>
-
-    {/* Safaricom */}
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      className="flex flex-col items-center transition-all duration-300"
-    >
-      <span className="mb-2 text-gray-600 dark:text-gray-400 font-medium">Safaricom</span>
-      <img src="/images/safaricom.png" alt="Safaricom" className="h-10 object-contain" />
-    </motion.div>
-
-    {/* PayPal */}
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      className="flex flex-col items-center transition-all duration-300"
-    >
-      <span className="mb-2 text-gray-600 dark:text-gray-400 font-medium">PayPal</span>
-      <img src="/images/paypal.webp" alt="PayPal" className="h-10 object-contain" />
-    </motion.div>
-  </div>
-</section>
-
 
       {/* ================= FAQ ================= */}
       <section className="max-w-3xl mx-auto py-20 px-6">

@@ -2,21 +2,10 @@ const pool = require("../db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const { sendSmsOtp } = require("../utils/sms");
+const { sendEmailOtp } = require("../utils/mail");
+const { generateOtp } = require("../utils/otp");
 
-// simulate SMS OTP (for now we just log it)
-const sendSmsOtp = (phone, otp) => {
-  console.log(`📱 OTP sent to ${phone}: ${otp}`);
-};
-
-// setup nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail", // or Mailgun, Sendgrid, etc.
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 // =======================
 // Register
@@ -49,28 +38,30 @@ exports.register = async (req, res) => {
     );
 
     const userId = newUser.rows[0].id;
+// generate OTPs
+const phoneOtp = generateOtp();
+const emailOtp = generateOtp();
 
-    // generate email token
-    const emailToken = crypto.randomBytes(20).toString("hex");
-    await pool.query(
-      "INSERT INTO email_tokens(user_id, token) VALUES($1,$2)",
-      [userId, emailToken]
-    );
+const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const verifyLink = `${process.env.CLIENT_URL}/verify-email/${emailToken}`;
+// save to DB
+await pool.query(
+  "INSERT INTO phone_otps(user_id, otp, expires_at, used) VALUES($1,$2,$3,false)",
+  [userId, phoneOtp, expiresAt]
+);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Verify your Capital Bank email",
-      html: `<p>Hello ${name},</p>
-             <p>Click below to verify your email:</p>
-             <a href="${verifyLink}">${verifyLink}</a>`,
-    });
+await pool.query(
+  "INSERT INTO email_otps(user_id, otp, expires_at, used) VALUES($1,$2,$3,false)",
+  [userId, emailOtp, expiresAt]
+);
 
-    // generate OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    await pool.query("INSERT INTO phone_otps(user_id, otp) VALUES($1,$2)", [userId, otp]);
+// send real SMS
+await sendSmsOtp(phone, phoneOtp);
+
+// send real email
+await sendEmailOtp(email, name, emailOtp);
+
+    
 
     sendSmsOtp(phone, otp);
 

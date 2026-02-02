@@ -1,5 +1,5 @@
-// backend/controllers/loanController.js
 const db = require("../db");
+
 
 const applyLoan = async (req, res) => {
   try {

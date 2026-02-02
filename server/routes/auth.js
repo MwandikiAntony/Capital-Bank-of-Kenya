@@ -205,7 +205,8 @@ router.post('/resend-phone-otp', async (req, res) => {
       [userId, otp]
     );
 
-    console.log(`📲 New OTP for ${user.phone}: ${otp}`);
+    await sendSmsOtp(user.phone, otp);
+
     res.json({ message: "New OTP sent successfully" });
 
   } catch (err) {
