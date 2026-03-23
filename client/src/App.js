@@ -19,6 +19,7 @@ import ContactUs from "./pages/ContactUs";
 import VerifyPhone from "./pages/VerifyPhone";
 import VerifyEmail from "./pages/VerifyEmail";
 import api from "./utils/api";
+import {MobileMenu} from "./pages/MobileMenu";
 import { motion } from "framer-motion";
 import {
   ShieldCheck,
@@ -35,42 +36,73 @@ function Home({ currentUser }) {
     <div className="min-h-screen flex flex-col font-sans bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-white">
 
       {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl shadow-sm dark:bg-gray-950/80 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-900 dark:text-white">
-            Capital Bank
-          </h1>
+   <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg shadow-lg border-b border-gray-200 dark:border-gray-700">
+  <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    
+    {/* Logo */}
+    <h1 className="text-2xl font-bold text-blue-900 dark:text-white tracking-wide">
+      Capital Bank
+    </h1>
 
-          <nav className="flex gap-6 text-sm font-medium items-center">
-            {!currentUser && (
-              <>
-                <Link to="/register" className="hover:text-blue-700 transition-all duration-300">Open Account</Link>
-                <Link to="/login" className="hover:text-blue-700 transition-all duration-300">Login</Link>
-              </>
-            )}
+    {/* Navigation */}
+    <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
+      {!currentUser && (
+        <>
+          <Link
+            to="/register"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
+          >
+            Open Account
+          </Link>
+          <Link
+            to="/login"
+            className="hover:text-blue-600 transition-all duration-300"
+          >
+            Login
+          </Link>
+        </>
+      )}
 
-            {currentUser && (
-              <NavbarDropdown currentUser={currentUser} />
-            )}
+      {currentUser && <NavbarDropdown currentUser={currentUser} />}
 
-            <Link to="/help" className="hover:text-blue-700 transition-all duration-300">Help</Link>
-          </nav>
-        </div>
-      </header>
+      <Link
+        to="/help"
+        className="hover:text-blue-600 transition-all duration-300"
+      >
+        Help
+      </Link>
+    </nav>
+
+    {/* Mobile Hamburger */}
+    <div className="md:hidden">
+      <MobileMenu currentUser={currentUser} />
+    </div>
+  </div>
+</header>
+
 
       {/* ================= HERO ================= */}
-      <section className="bg-gradient-to-br from-blue-900 via-indigo-800 to-blue-950 text-white">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 px-6 py-24 items-center">
+      <section className="relative bg-gradient-to-br from-blue-900 via-indigo-800 to-blue-950 text-white overflow-hidden">
+        {/* subtle floating circles for luxury effect */}
+        <div className="absolute -top-20 -left-32 w-96 h-96 bg-blue-700/20 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-32 -right-20 w-96 h-96 bg-indigo-700/20 rounded-full filter blur-3xl animate-pulse"></div>
+
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 px-6 py-28 items-center relative z-10">
 
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}>
             <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-              Banking that works <br /> as fast as you do
+              Premium Banking Experience <br /> Tailored for You
             </h2>
 
             <p className="mt-6 text-blue-200 text-lg">
-              Save smarter, transfer instantly, and access loans anytime.
-              Secure, Simple and Modern.
+              Capital Bank empowers you with instant transfers, smart saving insights, premium loan options, and 24/7 mobile access. Banking redefined for the discerning user.
             </p>
+
+            <ul className="mt-6 text-blue-200 space-y-2 text-sm">
+              <li>✔ Personalized account management</li>
+              <li>✔ Instant payments and transfers</li>
+              <li>✔ Exclusive premium features and rewards</li>
+            </ul>
 
             <div className="flex gap-4 mt-8 flex-wrap">
               {!currentUser && (
@@ -102,39 +134,39 @@ function Home({ currentUser }) {
             </div>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            whileHover={{ scale: 1.03, y: -2 }}
+            transition={{ type: "spring", stiffness: 120 }}
+            className="bg-gradient-to-br from-blue-900/20 via-blue-800/20 to-blue-950/20 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-blue-200/30 transition-all duration-300"
+          >
+            <p className="text-sm text-blue-200">Available Balance</p>
+            <h3 className="text-4xl font-bold mt-2 text-white">Ksh. 12,450.00</h3>
+            <p className="mt-3 text-blue-200 text-sm">Your premium account gives you exclusive benefits and faster transfers.</p>
+            <div className="mt-6 space-y-2 text-sm text-blue-200">
+              <p>✔ Send Money Instantly</p>
+              <p>✔ Pay Bills Securely</p>
+              <p>✔ Apply for Premium Loans</p>
+            </div>
+          </motion.div>
 
-    <motion.div
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={{ scale: 1.03, y: -2 }}
-      transition={{ type: "spring", stiffness: 120 }}
-      className="bg-gradient-to-br from-blue-900/20 via-blue-800/20 to-blue-950/20 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-blue-200/30 transition-all duration-300"
-    >
-      <p className="text-sm text-blue-200">Available Balance</p>
-      <h3 className="text-4xl font-bold mt-2 text-white">Ksh. 12,450.00</h3>
-      <div className="mt-6 space-y-2 text-sm text-blue-200">
-        <p>✔ Send Money</p>
-        <p>✔ Pay Bills</p>
-        <p>✔ Apply Loans</p>
-      </div>
-    </motion.div>
-  
         </div>
       </section>
 
       {/* ================= FEATURES ================= */}
       <section className="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-4 gap-8">
-        <Feature icon={<CreditCard />} title="Digital Banking" text="24/7 online access to your money" />
-        <Feature icon={<Landmark />} title="Instant Loans" text="Fast approvals within minutes" />
-        <Feature icon={<ShieldCheck />} title="Secure" text="Bank-grade encryption" />
-        <Feature icon={<Smartphone />} title="Mobile App" text="Bank on the go anytime" />
+        <Feature icon={<CreditCard />} title="Digital Banking" text="Access your accounts 24/7 with intelligent dashboards and analytics." />
+        <Feature icon={<Landmark />} title="Instant Loans" text="Get instant approvals on personal and business loans with competitive rates." />
+        <Feature icon={<ShieldCheck />} title="Secure & Trusted" text="Bank-grade encryption, fraud monitoring, and privacy-first design." />
+        <Feature icon={<Smartphone />} title="Mobile App" text="Bank on the go with our premium mobile app, with instant notifications." />
       </section>
 
       {/* ================= TRUST STATS ================= */}
       <section className="bg-white dark:bg-gray-900 border-y">
         <div className="max-w-7xl mx-auto px-6 py-14 grid md:grid-cols-3 text-center gap-10">
-          <Stat number="50K+" label="Customers" />
-          <Stat number="KES 1B+" label="Transactions" />
+          <Stat number="50K+" label="Active Premium Users" />
+          <Stat number="KES 1B+" label="Transactions Processed" />
           <Stat number="99.99%" label="System Uptime" />
         </div>
       </section>
@@ -142,13 +174,13 @@ function Home({ currentUser }) {
       {/* ================= DASHBOARD PREVIEW ================= */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto text-center px-6">
-          <h3 className="text-3xl font-bold mb-10">Simple. Clean. Powerful.</h3>
+          <h3 className="text-3xl font-bold mb-10">Simple. Clean. Luxurious.</h3>
 
           <motion.div
             whileHover={{ scale: 1.02, y: -2 }}
             className="rounded-3xl shadow-2xl bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 p-10 transition-all duration-300"
           >
-            <p className="text-gray-500">Dashboard preview area</p>
+            <p className="text-gray-500">Premium dashboard with full analytics, insights, and quick access to all features.</p>
           </motion.div>
         </div>
       </section>
@@ -156,25 +188,27 @@ function Home({ currentUser }) {
       {/* ================= TESTIMONIALS ================= */}
       <section className="bg-gray-100 dark:bg-gray-900 py-20">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-6">
-          <Testimonial name="James M." text="Fastest banking app I’ve ever used." />
-          <Testimonial name="Sarah K." text="Loans approved in minutes. Amazing!" />
-          <Testimonial name="David O." text="Safe and reliable for my business." />
+          <Testimonial name="James M." text="Fastest banking app I’ve ever used. Premium experience that feels exclusive." />
+          <Testimonial name="Sarah K." text="Loans approved in minutes with excellent rates and no hassle. Truly luxurious." />
+          <Testimonial name="David O." text="Safe, reliable, and intuitive for my business. A must-have for premium clients." />
         </div>
       </section>
-
 
       {/* ================= FAQ ================= */}
       <section className="max-w-3xl mx-auto py-20 px-6">
         <h3 className="text-3xl font-bold text-center mb-10">FAQs</h3>
-        <FAQ question="Is my money secure?" answer="Yes, we use bank-grade encryption and monitoring." />
-        <FAQ question="How fast are transfers?" answer="Most transfers are instant." />
-        <FAQ question="How do I apply for a loan?" answer="Login → Loans → Apply." />
+        <FAQ question="Is my money secure?" answer="Yes, we use bank-grade encryption, continuous monitoring, and two-factor authentication for every transaction." />
+        <FAQ question="How fast are transfers?" answer="Most transfers are instant, including international payments for premium clients." />
+        <FAQ question="How do I apply for a loan?" answer="Login, navigate to Loans, choose your amount, and submit. Approval is near-instant for verified accounts." />
       </section>
 
       {/* ================= CTA ================= */}
       {!currentUser && (
         <section className="bg-blue-900 text-white text-center py-20">
-          <h3 className="text-3xl font-bold">Open your free account today</h3>
+          <h3 className="text-3xl font-bold">Join the Capital Bank Premium Experience</h3>
+          <p className="mt-4 max-w-xl mx-auto text-blue-200">
+            Enjoy exclusive rewards, faster transactions, premium support, and financial insights that elevate your banking.
+          </p>
           <Link
             to="/register"
             className="inline-block mt-8 px-10 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-105 shadow-lg rounded-xl font-semibold transition-all duration-300"
@@ -186,7 +220,7 @@ function Home({ currentUser }) {
 
       {/* ================= FOOTER ================= */}
       <footer className="bg-gray-100 dark:bg-gray-950 text-gray-500 text-sm py-6 text-center">
-        © {new Date().getFullYear()} Capital Bank • Licensed by Central Bank of Kenya
+        © {new Date().getFullYear()} Capital Bank • Licensed by Central Bank of Kenya • Premium Experience
       </footer>
     </div>
   );
@@ -217,7 +251,6 @@ function NavbarDropdown({ currentUser }) {
     </div>
   );
 }
-
 
 /* ================= REUSABLE COMPONENTS ================= */
 
@@ -310,7 +343,6 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/verify-phone" element={<VerifyPhone />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        {/* Protected Dashboard */}
         <Route
           path="/dashboard/*"
           element={

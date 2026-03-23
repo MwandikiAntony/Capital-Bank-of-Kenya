@@ -7,7 +7,7 @@ export default function Deposit({ addNotification, fetchAccount, darkMode }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState(null);
-  const socketRef = useRef(null); // useRef to persist socket across renders
+  const socketRef = useRef(null); 
 
   // Fetch userId from localStorage on mount
   useEffect(() => {
