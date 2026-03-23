@@ -12,8 +12,6 @@ import api from "../utils/api";
 import { fetchNotifications as fetchNotificationsService } from "../services/notifications";
 import Statements from "../pages/Statements";
 
-
-// Overview Component
 function Overview({ balance, transactions, darkMode }) {
   return (
     <>
@@ -120,8 +118,6 @@ function Notifications({ notifications, darkMode }) {
     </div>
   );
 }
-
-// Loans Component
 
 
 // Add Card Modal
