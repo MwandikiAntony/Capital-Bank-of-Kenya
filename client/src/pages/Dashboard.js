@@ -172,8 +172,6 @@ function CardDetailsModal({ card, onClose }) {
 }
 
 // Main Dashboard
-// Main Dashboard
-
 export default function Dashboard() {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
