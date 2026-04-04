@@ -7,6 +7,12 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CreditCard, Building2, ShieldCheck, Send,
+  ChevronDown, ChevronRight, Star, Menu, X,
+  ArrowUpRight, ArrowDownLeft, Receipt, FileText,
+} from "lucide-react";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -19,338 +25,486 @@ import ContactUs from "./pages/ContactUs";
 import VerifyPhone from "./pages/VerifyPhone";
 import VerifyEmail from "./pages/VerifyEmail";
 import api from "./utils/api";
-import {MobileMenu} from "./pages/MobileMenu";
-import { motion } from "framer-motion";
-import {
-  ShieldCheck,
-  CreditCard,
-  Landmark,
-  Smartphone,
-  Star,
-  ChevronDown,
-  ArrowRight,
-} from "lucide-react";
 
+/* ── Design tokens ─────────────────────────────────────────── */
+const T = {
+  navy:      "#0B1F3A",
+  navyMid:   "#122848",
+  navyLight: "#1A3A5C",
+  gold:      "#C9A84C",
+  goldLight: "#E4C170",
+  goldPale:  "#F9F2E1",
+  cream:     "#FAFAF7",
+  border:    "#E8EDF2",
+  borderMid: "#D0D9E2",
+  muted:     "#6B7A8D",
+  hint:      "#A9B5C2",
+};
+
+/* ════════════════════════════════════════════════════════════
+   HOME PAGE
+════════════════════════════════════════════════════════════ */
 function Home({ currentUser }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-white">
+    <div style={{ fontFamily: "'DM Sans', -apple-system, sans-serif", background: T.cream, color: T.navy }}>
 
-      {/* ================= HEADER ================= */}
-   <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg shadow-lg border-b border-gray-200 dark:border-gray-700">
-  <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    
-    {/* Logo */}
-    <h1 className="text-2xl font-bold text-blue-900 dark:text-white tracking-wide">
-      Capital Bank
-    </h1>
+      {/* ── GOOGLE FONTS ── */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @keyframes fadeUp { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }
+        .fade-up { animation: fadeUp 0.65s ease both; }
+        .d1 { animation-delay:.1s } .d2 { animation-delay:.2s }
+        .d3 { animation-delay:.3s } .d4 { animation-delay:.45s }
+        * { box-sizing: border-box; }
+        a { text-decoration: none; }
+      `}</style>
 
-    {/* Navigation */}
-    <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
-      {!currentUser && (
-        <>
-          <Link
-            to="/register"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
-          >
-            Open Account
-          </Link>
-          <Link
-            to="/login"
-            className="hover:text-blue-600 transition-all duration-300"
-          >
-            Login
-          </Link>
-        </>
-      )}
+      {/* ── NAVBAR ── */}
+      <nav style={{
+        position:"sticky", top:0, zIndex:100,
+        background:"rgba(250,250,247,0.95)", backdropFilter:"blur(14px)",
+        borderBottom:`1px solid ${T.border}`, padding:"0 5vw",
+      }}>
+        <div style={{ maxWidth:1200, margin:"0 auto", height:68, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <LogoMark />
 
-      {currentUser && <NavbarDropdown currentUser={currentUser} />}
+          {/* Desktop nav */}
+          <div style={{ display:"flex", alignItems:"center", gap:32 }} className="hidden-mobile">
+            {["Personal","Business","Loans","Help"].map(l => (
+              <Link key={l} to={l==="Help"?"/help":"#"} style={{ fontSize:14, fontWeight:500, color:T.muted, letterSpacing:".3px" }}
+                onMouseEnter={e=>e.target.style.color=T.navy}
+                onMouseLeave={e=>e.target.style.color=T.muted}
+              >{l}</Link>
+            ))}
+            {currentUser ? (
+              <NavDropdown user={currentUser} />
+            ) : (
+              <>
+                <NavBtn to="/login" ghost>Log In</NavBtn>
+                <NavBtn to="/register">Open Account</NavBtn>
+              </>
+            )}
+          </div>
 
-      <Link
-        to="/help"
-        className="hover:text-blue-600 transition-all duration-300"
-      >
-        Help
-      </Link>
-    </nav>
+          {/* Mobile hamburger */}
+          <button onClick={() => setMobileOpen(o => !o)}
+            style={{ display:"none", background:"none", border:"none", cursor:"pointer", color:T.navy }}
+            className="show-mobile">
+            {mobileOpen ? <X size={22}/> : <Menu size={22}/>}
+          </button>
+        </div>
 
-    {/* Mobile Hamburger */}
-    <div className="md:hidden">
-      <MobileMenu currentUser={currentUser} />
-    </div>
-  </div>
-</header>
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}
+              style={{ padding:"16px 5vw 24px", borderTop:`1px solid ${T.border}`, background:T.cream }}>
+              {["Personal","Business","Loans"].map(l=>(
+                <div key={l} style={{ padding:"10px 0", fontSize:15, fontWeight:500, color:T.muted, borderBottom:`1px solid ${T.border}` }}>{l}</div>
+              ))}
+              <Link to="/help" style={{ display:"block", padding:"10px 0", fontSize:15, fontWeight:500, color:T.muted, borderBottom:`1px solid ${T.border}` }}>Help</Link>
+              <div style={{ display:"flex", gap:12, marginTop:20 }}>
+                <Link to="/login" style={{ flex:1, textAlign:"center", padding:"10px", border:`1.5px solid ${T.navy}`, borderRadius:6, fontSize:13, fontWeight:600, color:T.navy }}>Log In</Link>
+                <Link to="/register" style={{ flex:1, textAlign:"center", padding:"10px", background:T.navy, borderRadius:6, fontSize:13, fontWeight:600, color:"white" }}>Open Account</Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
 
+      {/* ── HERO ── */}
+      <section style={{ background:T.navy, color:"white", padding:"90px 5vw 0", position:"relative", overflow:"hidden" }}>
+        {/* Decorative rings */}
+        <div style={{ position:"absolute", top:-80, right:-80, width:480, height:480, borderRadius:"50%", border:`1px solid rgba(201,168,76,.14)`, pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", top:-20, right:-20, width:300, height:300, borderRadius:"50%", border:`1px solid rgba(201,168,76,.07)`, pointerEvents:"none" }}/>
 
-      {/* ================= HERO ================= */}
-      <section className="relative bg-gradient-to-br from-blue-900 via-indigo-800 to-blue-950 text-white overflow-hidden">
-        {/* subtle floating circles for luxury effect */}
-        <div className="absolute -top-20 -left-32 w-96 h-96 bg-blue-700/20 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-32 -right-20 w-96 h-96 bg-indigo-700/20 rounded-full filter blur-3xl animate-pulse"></div>
+        <div style={{ maxWidth:1200, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 420px", gap:60, alignItems:"end" }}>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 px-6 py-28 items-center relative z-10">
+          {/* Left copy */}
+          <div>
+            <div className="fade-up d1" style={{ display:"inline-flex", alignItems:"center", gap:8, fontSize:11, fontWeight:600, letterSpacing:2, textTransform:"uppercase", color:T.gold, marginBottom:24 }}>
+              <span style={{ display:"block", width:28, height:1, background:T.gold }}/>
+              Licensed &amp; Regulated · CBK
+            </div>
 
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-              Premium Banking Experience <br /> Tailored for You
-            </h2>
+            <h1 className="fade-up d2" style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:"clamp(38px,5vw,62px)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.5px", marginBottom:24 }}>
+              Banking built for<br/><em style={{ color:T.goldLight }}>Kenya's future.</em>
+            </h1>
 
-            <p className="mt-6 text-blue-200 text-lg">
-              Capital Bank empowers you with instant transfers, smart saving insights, premium loan options, and 24/7 mobile access. Banking redefined for the discerning user.
+            <p className="fade-up d3" style={{ fontSize:16, fontWeight:300, color:"rgba(255,255,255,.65)", maxWidth:420, lineHeight:1.75, marginBottom:40 }}>
+              Seamless transfers, instant access to credit, and total financial control — all from one trusted platform.
             </p>
 
-            <ul className="mt-6 text-blue-200 space-y-2 text-sm">
-              <li>✔ Personalized account management</li>
-              <li>✔ Instant payments and transfers</li>
-              <li>✔ Exclusive premium features and rewards</li>
-            </ul>
-
-            <div className="flex gap-4 mt-8 flex-wrap">
-              {!currentUser && (
+            <div className="fade-up d4" style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:48 }}>
+              {currentUser ? (
+                <HeroBtn to="/dashboard" gold>Go to Dashboard</HeroBtn>
+              ) : (
                 <>
-                  <Link
-                    to="/register"
-                    className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 hover:scale-105"
-                  >
-                    Get Started <ArrowRight size={18} />
-                  </Link>
-
-                  <Link
-                    to="/login"
-                    className="px-8 py-3 bg-white/10 border border-white/30 rounded-xl transition-all duration-300 hover:scale-105"
-                  >
-                    Login
-                  </Link>
+                  <HeroBtn to="/register" gold>Open Free Account</HeroBtn>
+                  <HeroBtn to="/help" ghost>See How It Works</HeroBtn>
                 </>
               )}
+            </div>
 
-              {currentUser && (
-                <Link
-                  to="/dashboard"
-                  className="px-8 py-3 bg-yellow-500 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  Dashboard
-                </Link>
-              )}
+            <div className="fade-up d4" style={{ display:"flex", alignItems:"center", gap:24, paddingTop:28, borderTop:"1px solid rgba(255,255,255,.08)" }}>
+              {[["52,000+","Customers"],["KES 1.2B+","Transacted"],["99.97%","Uptime"]].map(([n,l],i) => (
+                <React.Fragment key={l}>
+                  {i>0 && <div style={{ width:1, height:36, background:"rgba(255,255,255,.1)" }}/>}
+                  <div>
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:700, color:"white" }}>{n}</div>
+                    <div style={{ fontSize:11, letterSpacing:.8, textTransform:"uppercase", color:"rgba(255,255,255,.4)", marginTop:3 }}>{l}</div>
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Hero card */}
+          <motion.div initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} transition={{delay:.3}}
+            style={{ background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.1)", borderRadius:16, padding:28, alignSelf:"end" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:32 }}>
+              <div style={{ width:40, height:28, background:`linear-gradient(135deg,${T.gold},${T.goldLight})`, borderRadius:4 }}/>
+              <span style={{ fontSize:18, fontWeight:700, color:"rgba(255,255,255,.5)", letterSpacing:1 }}>VISA</span>
+            </div>
+            <div style={{ fontSize:15, letterSpacing:3, color:"rgba(255,255,255,.55)", marginBottom:8, fontWeight:300 }}>•••• •••• •••• 4821</div>
+            <div style={{ fontSize:11, textTransform:"uppercase", letterSpacing:1.5, color:"rgba(255,255,255,.35)", marginBottom:4 }}>Available Balance</div>
+            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:30, fontWeight:700, color:"white" }}>
+              <span style={{ fontSize:14, fontWeight:400, opacity:.6 }}>KES </span>48,250.00
+            </div>
+            <div style={{ display:"flex", justifyContent:"space-between", marginTop:20, paddingTop:16, borderTop:"1px solid rgba(255,255,255,.08)", fontSize:12, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:.8 }}>
+              <span>J. Mwangi</span><span>09 / 28</span>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:14 }}>
+              {[["↑","Send",ArrowUpRight],["↓","Receive",ArrowDownLeft],["⬡","Pay Bills",Receipt],["≡","Statement",FileText]].map(([,label,Icon])=>(
+                <div key={label} style={{ background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.08)", borderRadius:8, padding:"12px 10px", textAlign:"center", cursor:"pointer" }}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.1)"}
+                  onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.05)"}>
+                  <Icon size={14} color={T.gold} style={{ margin:"0 auto 4px" }}/>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.45)", letterSpacing:.3 }}>{label}</div>
+                </div>
+              ))}
             </div>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.03, y: -2 }}
-            transition={{ type: "spring", stiffness: 120 }}
-            className="bg-gradient-to-br from-blue-900/20 via-blue-800/20 to-blue-950/20 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-blue-200/30 transition-all duration-300"
-          >
-            <p className="text-sm text-blue-200">Available Balance</p>
-            <h3 className="text-4xl font-bold mt-2 text-white">Ksh. 12,450.00</h3>
-            <p className="mt-3 text-blue-200 text-sm">Your premium account gives you exclusive benefits and faster transfers.</p>
-            <div className="mt-6 space-y-2 text-sm text-blue-200">
-              <p>✔ Send Money Instantly</p>
-              <p>✔ Pay Bills Securely</p>
-              <p>✔ Apply for Premium Loans</p>
-            </div>
-          </motion.div>
-
         </div>
       </section>
 
-      {/* ================= FEATURES ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-4 gap-8">
-        <Feature icon={<CreditCard />} title="Digital Banking" text="Access your accounts 24/7 with intelligent dashboards and analytics." />
-        <Feature icon={<Landmark />} title="Instant Loans" text="Get instant approvals on personal and business loans with competitive rates." />
-        <Feature icon={<ShieldCheck />} title="Secure & Trusted" text="Bank-grade encryption, fraud monitoring, and privacy-first design." />
-        <Feature icon={<Smartphone />} title="Mobile App" text="Bank on the go with our premium mobile app, with instant notifications." />
-      </section>
+      {/* ── SERVICES ── */}
+      <Section>
+        <SectionLabel>What We Offer</SectionLabel>
+        <SectionTitle>Everything you need,<br/><em>nothing you don't.</em></SectionTitle>
+        <SectionSub>Designed for individuals, families, and businesses across Kenya.</SectionSub>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:16, marginTop:48 }}>
+          {[
+            { Icon:CreditCard, title:"Personal Accounts",  desc:"Savings and current accounts with zero hidden fees and real-time notifications." },
+            { Icon:Building2,  title:"Business Banking",   desc:"Multi-user accounts, payroll solutions, and trade finance for growing businesses." },
+            { Icon:Send,       title:"Loans & Credit",     desc:"Personal, home, and SME loans with competitive rates and fast digital approval." },
+            { Icon:ShieldCheck,title:"Secure Transfers",   desc:"Send money locally and internationally via RTGS, EFT, SWIFT, and M-Pesa." },
+          ].map(({ Icon, title, desc }) => (
+            <ServiceCard key={title} Icon={Icon} title={title} desc={desc} />
+          ))}
+        </div>
+      </Section>
 
-      {/* ================= TRUST STATS ================= */}
-      <section className="bg-white dark:bg-gray-900 border-y">
-        <div className="max-w-7xl mx-auto px-6 py-14 grid md:grid-cols-3 text-center gap-10">
-          <Stat number="50K+" label="Active Premium Users" />
-          <Stat number="KES 1B+" label="Transactions Processed" />
-          <Stat number="99.99%" label="System Uptime" />
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ background:T.navy, padding:"80px 5vw" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <SectionLabel dark>Getting Started</SectionLabel>
+          <SectionTitle dark>Up and running<br/><em>in minutes.</em></SectionTitle>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:1, background:"rgba(255,255,255,.08)", borderRadius:12, overflow:"hidden", marginTop:52 }}>
+            {[
+              ["01","Create Your Account","Register with your national ID and a valid phone number. No branch visit required."],
+              ["02","Verify Your Identity","Quick KYC process — upload a selfie and ID. Verified within 24 hours."],
+              ["03","Start Banking","Deposit funds, send money, apply for a loan, and manage everything online."],
+            ].map(([n,t,d]) => (
+              <div key={n} style={{ background:T.navy, padding:"40px 32px" }}>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:52, fontWeight:700, color:"rgba(201,168,76,.14)", lineHeight:1, marginBottom:20 }}>{n}</div>
+                <div style={{ fontSize:16, fontWeight:600, color:"white", marginBottom:10 }}>{t}</div>
+                <div style={{ fontSize:13, color:"rgba(255,255,255,.45)", lineHeight:1.75, fontWeight:300 }}>{d}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ================= DASHBOARD PREVIEW ================= */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto text-center px-6">
-          <h3 className="text-3xl font-bold mb-10">Simple. Clean. Luxurious.</h3>
+      {/* ── TESTIMONIALS ── */}
+      <Section>
+        <SectionLabel>Client Stories</SectionLabel>
+        <SectionTitle>Trusted by thousands<br/><em>across Kenya.</em></SectionTitle>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:20, marginTop:48 }}>
+          {[
+            { init:"JM", name:"James Mwangi",   role:"Business owner, Nairobi", text:"Getting my SME loan approved took less than 48 hours. Transparent rates, entirely paperless." },
+            { init:"SK", name:"Sarah Kamau",     role:"Teacher, Kisumu",         text:"International transfers to my family in the diaspora are instant now. Capital Bank is a game changer." },
+            { init:"DO", name:"David Otieno",    role:"Tech founder, Mombasa",   text:"The business account dashboard is exactly what I needed to track cash flow. Highly recommend." },
+          ].map(t => <TestimonialCard key={t.name} {...t} />)}
+        </div>
+      </Section>
 
-          <motion.div
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="rounded-3xl shadow-2xl bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 p-10 transition-all duration-300"
-          >
-            <p className="text-gray-500">Premium dashboard with full analytics, insights, and quick access to all features.</p>
-          </motion.div>
+      {/* ── FAQ ── */}
+      <section style={{ background:T.goldPale, padding:"80px 5vw" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto", textAlign:"center" }}>
+          <SectionLabel>Common Questions</SectionLabel>
+          <SectionTitle>Frequently asked.</SectionTitle>
+        </div>
+        <div style={{ maxWidth:720, margin:"48px auto 0" }}>
+          {[
+            ["Is Capital Bank licensed by the Central Bank of Kenya?","Yes. Capital Bank is fully licensed and regulated by the Central Bank of Kenya (CBK) under the Banking Act. Your deposits are protected."],
+            ["How secure are my funds and personal data?","We use 256-bit AES encryption, two-factor authentication, and real-time fraud monitoring to keep your money and data safe at all times."],
+            ["Can I link my M-Pesa to my Capital Bank account?","Absolutely. You can link M-Pesa and transfer funds between your mobile wallet and bank account instantly and for free."],
+            ["How do I apply for a loan?","Log in to your dashboard, navigate to Loans, choose your product, and fill in a short application. Most decisions are made within 24–48 hours."],
+          ].map(([q,a]) => <FAQItem key={q} question={q} answer={a} />)}
         </div>
       </section>
 
-      {/* ================= TESTIMONIALS ================= */}
-      <section className="bg-gray-100 dark:bg-gray-900 py-20">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-6">
-          <Testimonial name="James M." text="Fastest banking app I’ve ever used. Premium experience that feels exclusive." />
-          <Testimonial name="Sarah K." text="Loans approved in minutes with excellent rates and no hassle. Truly luxurious." />
-          <Testimonial name="David O." text="Safe, reliable, and intuitive for my business. A must-have for premium clients." />
-        </div>
-      </section>
-
-      {/* ================= FAQ ================= */}
-      <section className="max-w-3xl mx-auto py-20 px-6">
-        <h3 className="text-3xl font-bold text-center mb-10">FAQs</h3>
-        <FAQ question="Is my money secure?" answer="Yes, we use bank-grade encryption, continuous monitoring, and two-factor authentication for every transaction." />
-        <FAQ question="How fast are transfers?" answer="Most transfers are instant, including international payments for premium clients." />
-        <FAQ question="How do I apply for a loan?" answer="Login, navigate to Loans, choose your amount, and submit. Approval is near-instant for verified accounts." />
-      </section>
-
-      {/* ================= CTA ================= */}
+      {/* ── CTA BANNER ── */}
       {!currentUser && (
-        <section className="bg-blue-900 text-white text-center py-20">
-          <h3 className="text-3xl font-bold">Join the Capital Bank Premium Experience</h3>
-          <p className="mt-4 max-w-xl mx-auto text-blue-200">
-            Enjoy exclusive rewards, faster transactions, premium support, and financial insights that elevate your banking.
-          </p>
-          <Link
-            to="/register"
-            className="inline-block mt-8 px-10 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-105 shadow-lg rounded-xl font-semibold transition-all duration-300"
-          >
-            Create Account
-          </Link>
+        <section style={{ background:T.navy, padding:"80px 5vw" }}>
+          <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", gap:40, flexWrap:"wrap" }}>
+            <div>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,3vw,40px)", fontWeight:700, color:"white", lineHeight:1.2, marginBottom:12 }}>
+                Start your journey<br/>with <em style={{ color:T.goldLight }}>Capital Bank.</em>
+              </h2>
+              <p style={{ fontSize:14, color:"rgba(255,255,255,.5)", fontWeight:300 }}>Open a free account in under 5 minutes. No minimum balance.</p>
+            </div>
+            <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+              <HeroBtn to="/register" gold>Open Account Free</HeroBtn>
+              <HeroBtn to="/contact" ghost>Talk to an Advisor</HeroBtn>
+            </div>
+          </div>
         </section>
       )}
 
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-gray-100 dark:bg-gray-950 text-gray-500 text-sm py-6 text-center">
-        © {new Date().getFullYear()} Capital Bank • Licensed by Central Bank of Kenya • Premium Experience
+      {/* ── FOOTER ── */}
+      <footer style={{ background:"#07152A", padding:"52px 5vw 28px", color:"rgba(255,255,255,.4)" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr 1fr 1fr", gap:40, paddingBottom:40, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+            <div>
+              <LogoMark dark />
+              <p style={{ fontSize:13, color:"rgba(255,255,255,.3)", lineHeight:1.7, marginTop:16, fontWeight:300, maxWidth:240 }}>
+                Secure, modern banking for every Kenyan — from Nairobi to the Rift Valley.
+              </p>
+            </div>
+            {[
+              ["Personal", ["Current Account","Savings Account","Fixed Deposit","Cards"]],
+              ["Business", ["SME Banking","Trade Finance","Payroll","Corporate Loans"]],
+              ["Company",  ["About Us","Careers","Privacy Policy","Contact"]],
+            ].map(([heading, links]) => (
+              <div key={heading}>
+                <div style={{ fontSize:11, fontWeight:600, letterSpacing:1.5, textTransform:"uppercase", color:"rgba(255,255,255,.45)", marginBottom:16 }}>{heading}</div>
+                {links.map(l => (
+                  <Link key={l} to="/" style={{ display:"block", fontSize:13, color:"rgba(255,255,255,.3)", marginBottom:8, fontWeight:300 }}
+                    onMouseEnter={e=>e.target.style.color=T.gold}
+                    onMouseLeave={e=>e.target.style.color="rgba(255,255,255,.3)"}>
+                    {l}
+                  </Link>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:24, gap:20, flexWrap:"wrap" }}>
+            <p style={{ fontSize:12 }}>© {new Date().getFullYear()} Capital Bank Kenya Ltd. All rights reserved.</p>
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:11, padding:"5px 14px", border:`1px solid rgba(201,168,76,.3)`, borderRadius:20, color:T.gold }}>
+              CBK Licensed · Member of KBA
+            </span>
+          </div>
+        </div>
       </footer>
+
     </div>
   );
 }
 
-/* ================= NAVBAR DROPDOWN ================= */
-function NavbarDropdown({ currentUser }) {
+/* ════════════════════════════════════════════════════════════
+   REUSABLE COMPONENTS
+════════════════════════════════════════════════════════════ */
+
+function LogoMark({ dark }) {
   return (
-    <div className="relative group">
-      <button className="flex items-center gap-2 hover:text-blue-700 font-medium transition-all duration-300">
-        {currentUser.name}
-        <ChevronDown size={16} className="transition group-hover:rotate-180" />
-      </button>
-      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-blue-950 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-        <Link to="/dashboard" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl">Dashboard</Link>
-        <Link to="/profile" className="block px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl">Profile</Link>
-        <button
-          onClick={() => {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.reload();
-          }}
-          className="w-full text-left px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-xl"
-        >
-          Logout
-        </button>
+    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+      <div style={{ width:36, height:36, background: dark ? "rgba(255,255,255,.1)" : T.navy, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
+        <div style={{ width:14, height:14, border:`2px solid ${T.gold}`, borderRadius:3, transform:"rotate(45deg)" }}/>
+      </div>
+      <span style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:700, color: dark ? "white" : T.navy, letterSpacing:.5 }}>
+        Capital <span style={{ color:T.gold }}>Bank</span>
+      </span>
+    </div>
+  );
+}
+
+function NavBtn({ to, children, ghost }) {
+  const base = { padding:"9px 22px", borderRadius:6, fontSize:13, fontWeight:600, cursor:"pointer", letterSpacing:.5, textDecoration:"none", display:"inline-block", transition:"all .2s" };
+  return ghost
+    ? <Link to={to} style={{ ...base, background:"transparent", border:`1.5px solid ${T.navy}`, color:T.navy }}>{children}</Link>
+    : <Link to={to} style={{ ...base, background:T.navy, border:`1.5px solid ${T.navy}`, color:"white" }}>{children}</Link>;
+}
+
+function HeroBtn({ to, children, gold, ghost }) {
+  const base = { padding:"14px 32px", borderRadius:6, fontSize:14, fontWeight:700, cursor:"pointer", letterSpacing:.5, textDecoration:"none", display:"inline-block", transition:"all .25s" };
+  if (gold) return <Link to={to} style={{ ...base, background:T.gold, color:T.navy, border:`1.5px solid ${T.gold}` }}>{children}</Link>;
+  return <Link to={to} style={{ ...base, background:"transparent", color:"white", border:"1.5px solid rgba(255,255,255,.3)" }}>{children}</Link>;
+}
+
+function Section({ children, cream }) {
+  return (
+    <section style={{ padding:"80px 5vw", background: cream ? T.cream : "white" }}>
+      <div style={{ maxWidth:1200, margin:"0 auto" }}>{children}</div>
+    </section>
+  );
+}
+
+function SectionLabel({ children, dark }) {
+  return (
+    <div style={{ display:"inline-flex", alignItems:"center", gap:8, fontSize:11, fontWeight:600, letterSpacing:2, textTransform:"uppercase", color:T.gold, marginBottom:12 }}>
+      <span style={{ display:"block", width:20, height:1, background:T.gold }}/>
+      {children}
+    </div>
+  );
+}
+
+function SectionTitle({ children, dark }) {
+  return (
+    <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,3.5vw,42px)", fontWeight:700, lineHeight:1.2, color: dark ? "white" : T.navy, marginBottom:12 }}>
+      {children}
+    </h2>
+  );
+}
+
+function SectionSub({ children }) {
+  return <p style={{ fontSize:15, color:T.muted, maxWidth:500, lineHeight:1.75, fontWeight:300 }}>{children}</p>;
+}
+
+function ServiceCard({ Icon, title, desc }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background:"white", border:`1px solid ${hov ? T.borderMid : T.border}`, borderRadius:12, padding:"28px 24px",
+        cursor:"pointer", transition:"all .3s", transform: hov ? "translateY(-4px)" : "none",
+        boxShadow: hov ? "0 12px 40px rgba(11,31,58,.08)" : "none", position:"relative", overflow:"hidden",
+      }}>
+      <div style={{ position:"absolute", bottom:0, left:0, right:0, height:2, background:T.gold, transform: hov ? "scaleX(1)" : "scaleX(0)", transition:"transform .3s", transformOrigin:"left" }}/>
+      <div style={{ width:44, height:44, borderRadius:10, background:T.navy, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:20 }}>
+        <Icon size={20} color={T.gold} strokeWidth={1.5} />
+      </div>
+      <div style={{ fontSize:15, fontWeight:600, color:T.navy, marginBottom:8 }}>{title}</div>
+      <div style={{ fontSize:13, color:T.muted, lineHeight:1.65, fontWeight:300 }}>{desc}</div>
+      <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12, fontWeight:600, color:T.gold, marginTop:16, letterSpacing:.3 }}>
+        Learn more <ChevronRight size={12} />
       </div>
     </div>
   );
 }
 
-/* ================= REUSABLE COMPONENTS ================= */
-
-function Feature({ icon, title, text }) {
+function TestimonialCard({ init, name, role, text }) {
   return (
-    <motion.div
-      whileHover={{ y: -8, scale: 1.03 }}
-      className="group bg-white/90 dark:bg-blue-950/80 backdrop-blur-xl p-8 rounded-3xl border border-blue-200/30 shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
-    >
-      <div className="w-14 h-14 mx-auto flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-900 to-blue-700 text-white shadow-md group-hover:scale-110 transition mb-5">
-        {icon}
+    <motion.div whileHover={{ y:-5 }}
+      style={{ background:"white", border:`1px solid ${T.border}`, borderRadius:12, padding:28 }}>
+      <div style={{ display:"flex", gap:4, marginBottom:16 }}>
+        {[...Array(5)].map((_,i) => <Star key={i} size={13} fill={T.gold} color={T.gold} />)}
       </div>
-      <h3 className="font-semibold text-lg mb-2 text-blue-900 dark:text-white">{title}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-300">{text}</p>
+      <p style={{ fontSize:14, color:T.muted, lineHeight:1.75, fontStyle:"italic", fontWeight:300, marginBottom:20 }}>"{text}"</p>
+      <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+        <div style={{ width:36, height:36, borderRadius:"50%", background:T.navy, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:T.gold }}>
+          {init}
+        </div>
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:T.navy }}>{name}</div>
+          <div style={{ fontSize:11, color:T.hint }}>{role}</div>
+        </div>
+      </div>
     </motion.div>
   );
 }
 
-function Stat({ number, label }) {
-  return (
-    <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900 dark:to-blue-950 shadow-md transition-all duration-300">
-      <p className="text-4xl font-extrabold text-blue-900 dark:text-white">{number}</p>
-      <p className="text-gray-500 text-sm mt-2 tracking-wide uppercase">{label}</p>
-    </div>
-  );
-}
-
-function Testimonial({ name, text }) {
-  return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      className="bg-white/90 dark:bg-blue-950/80 backdrop-blur-xl p-7 rounded-3xl shadow-lg border border-blue-200/30 hover:shadow-2xl transition-all duration-300"
-    >
-      <Star className="text-yellow-400 mb-3" />
-      <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{text}"</p>
-      <p className="mt-4 font-semibold text-blue-900 dark:text-white">— {name}</p>
-    </motion.div>
-  );
-}
-
-function FAQ({ question, answer }) {
+function FAQItem({ question, answer }) {
   const [open, setOpen] = useState(false);
-
   return (
-    <div className="border-b py-4">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex justify-between w-full font-medium"
-      >
-        {question}
-        <ChevronDown className={`transition ${open ? "rotate-180" : ""}`} size={18} />
+    <div style={{ borderBottom:`1px solid rgba(11,31,58,.1)`, padding:"20px 0" }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", background:"none", border:"none", cursor:"pointer", textAlign:"left", gap:12 }}>
+        <span style={{ fontSize:15, fontWeight:500, color:T.navy }}>{question}</span>
+        <span style={{
+          width:24, height:24, borderRadius:"50%", border:`1.5px solid ${T.navy}`,
+          display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0,
+          background: open ? T.navy : "transparent", color: open ? "white" : T.navy,
+          transform: open ? "rotate(45deg)" : "none", transition:"all .2s",
+        }}>+</span>
       </button>
-      {open && <p className="mt-3 text-sm text-gray-500">{answer}</p>}
+      <AnimatePresence>
+        {open && (
+          <motion.p initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}}
+            style={{ fontSize:14, color:T.muted, lineHeight:1.75, fontWeight:300, paddingTop:12, overflow:"hidden" }}>
+            {answer}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+function NavDropdown({ user }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position:"relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button style={{ display:"flex", alignItems:"center", gap:6, background:"none", border:"none", cursor:"pointer", fontSize:14, fontWeight:500, color:T.muted }}>
+        {user.name} <ChevronDown size={14} style={{ transform: open ? "rotate(180deg)" : "none", transition:"transform .2s" }} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} exit={{opacity:0,y:4}}
+            style={{ position:"absolute", right:0, top:"100%", marginTop:4, width:180, background:"white", border:`1px solid ${T.border}`, borderRadius:10, boxShadow:"0 12px 40px rgba(11,31,58,.1)", overflow:"hidden", zIndex:200 }}>
+            {[["Dashboard","/dashboard"],["Profile","/profile"]].map(([l,to]) => (
+              <Link key={l} to={to} style={{ display:"block", padding:"10px 16px", fontSize:14, color:T.navy, fontWeight:400 }}
+                onMouseEnter={e=>e.target.style.background="#F5F7FA"}
+                onMouseLeave={e=>e.target.style.background="transparent"}>
+                {l}
+              </Link>
+            ))}
+            <button onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.reload(); }}
+              style={{ display:"block", width:"100%", textAlign:"left", padding:"10px 16px", fontSize:14, color:T.navy, background:"none", border:"none", cursor:"pointer", borderTop:`1px solid ${T.border}` }}>
+              Logout
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   APP ROOT
+════════════════════════════════════════════════════════════ */
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
-    api
-      .get("/auth/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setCurrentUser(res.data.user);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-      })
-      .catch((err) => {
-        console.error("Error fetching user:", err);
-        setCurrentUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-      });
+    api.get("/auth/user", { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => { setCurrentUser(res.data.user); localStorage.setItem("user", JSON.stringify(res.data.user)); })
+      .catch(() => { setCurrentUser(null); localStorage.removeItem("user"); localStorage.removeItem("token"); });
   }, []);
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home currentUser={currentUser} />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/login" element={<Login onLogin={setCurrentUser} />} />
-        <Route path="/register" element={<Register onRegister={setCurrentUser} />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/help" element={<Help />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/verify-phone" element={<VerifyPhone />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route
-          path="/dashboard/*"
-          element={
-            <PrivateRoute currentUser={currentUser}>
-              <Dashboard currentUser={currentUser} />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/"           element={<Home currentUser={currentUser} />} />
+        <Route path="/login"      element={<Login onLogin={setCurrentUser} />} />
+        <Route path="/register"   element={<Register onRegister={setCurrentUser} />} />
+        <Route path="/terms"      element={<Terms />} />
+        <Route path="/privacy"    element={<PrivacyPolicy />} />
+        <Route path="/help"       element={<Help />} />
+        <Route path="/contact"    element={<ContactUs />} />
+        <Route path="/verify-phone"  element={<VerifyPhone />} />
+        <Route path="/verify-email"  element={<VerifyEmail />} />
+        <Route path="/dashboard/*" element={
+          <PrivateRoute currentUser={currentUser}>
+            <Dashboard currentUser={currentUser} />
+          </PrivateRoute>
+        }/>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
