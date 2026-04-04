@@ -2,6 +2,38 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
 
+const T = {
+  navy: "#0B1F3A", navyLight: "#1A3A5C",
+  gold: "#C9A84C", goldLight: "#E4C170", goldPale: "#F9F2E1",
+  cream: "#FAFAF7", border: "#E8EDF2", borderMid: "#D0D9E2",
+  muted: "#6B7A8D", hint: "#A9B5C2", danger: "#C0392B",
+};
+
+const FONT_URL = "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500;600&display=swap";
+
+function FormInput({ label, type = "text", placeholder, value, onChange, maxLength, required }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ display: "block", fontSize: 12, fontWeight: 600, letterSpacing: ".8px", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>
+        {label}
+      </label>
+      <input
+        type={type} placeholder={placeholder} value={value}
+        onChange={onChange} maxLength={maxLength} required={required}
+        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        style={{
+          width: "100%", padding: "12px 16px", fontSize: 14, fontFamily: "inherit",
+          background: focused ? T.cream : "#FAFBFC",
+          border: `1.5px solid ${focused ? T.navy : T.border}`,
+          borderRadius: 8, outline: "none", color: T.navy,
+          transition: "all .2s", boxSizing: "border-box",
+        }}
+      />
+    </div>
+  );
+}
+
 export default function Login({ onLogin }) {
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
@@ -13,121 +45,112 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      // 1️⃣ Login request
       const res = await api.post("/auth/login", { phone, pin });
       const { token } = res.data;
-
-      if (!token) {
-        setError("Login failed: No token received");
-        setLoading(false);
-        return;
-      }
-
-      // Store token in localStorage
+      if (!token) { setError("Login failed: No token received"); setLoading(false); return; }
       localStorage.setItem("token", token);
-
-      // 2️⃣ Fetch user profile with Authorization header
-      const profileRes = await api.get("/auth/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const profileRes = await api.get("/auth/user", { headers: { Authorization: `Bearer ${token}` } });
       const user = profileRes.data.user;
-      if (!user) {
-        setError("Failed to fetch user profile.");
-        setLoading(false);
-        return;
-      }
-
-      // Store user info in localStorage
+      if (!user) { setError("Failed to fetch user profile."); setLoading(false); return; }
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userPhone", user.phone);
-
       if (onLogin) onLogin(user);
-
-      // Redirect based on verification
-      if (!user.phone_verified) {
-        navigate("/verify-phone");
-      } else {
-        navigate("/dashboard");
-      }
+      if (!user.phone_verified) navigate("/verify-phone");
+      else navigate("/dashboard");
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.error || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
-  
-
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-blue-100 to-indigo-300 px-4">
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-indigo-200">
+    <div style={{ minHeight: "100vh", display: "flex", fontFamily: "'DM Sans', -apple-system, sans-serif", background: T.navy }}>
+      <link rel="stylesheet" href={FONT_URL} />
+      <style>{`* { box-sizing: border-box; } a { text-decoration: none; }`}</style>
 
-        {/* Branding */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-            CK
+      {/* Left panel — branding */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 5vw", position: "relative", overflow: "hidden" }}>
+        {/* Decorative rings */}
+        <div style={{ position: "absolute", top: -100, left: -100, width: 500, height: 500, borderRadius: "50%", border: `1px solid rgba(201,168,76,.12)`, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -60, right: -60, width: 300, height: 300, borderRadius: "50%", border: `1px solid rgba(201,168,76,.08)`, pointerEvents: "none" }} />
+
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 64 }}>
+          <div style={{ width: 36, height: 36, background: "rgba(201,168,76,.15)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+            <div style={{ width: 14, height: 14, border: `2px solid ${T.gold}`, borderRadius: 3, transform: "rotate(45deg)" }} />
           </div>
-          <h1 className="mt-4 text-2xl font-semibold text-gray-800">Welcome Back</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to access your account</p>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: "white", letterSpacing: .5 }}>
+            Capital <span style={{ color: T.gold }}>Bank</span>
+          </span>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-            <input
-              type="text"
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="07xxxxxxxx"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", color: T.gold, marginBottom: 20 }}>
+          <span style={{ display: "block", width: 20, height: 1, background: T.gold }} />
+          Secure Access
+        </div>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "white", lineHeight: 1.15, marginBottom: 20 }}>
+          Welcome<br /><em style={{ color: T.goldLight }}>back.</em>
+        </h1>
+        <p style={{ fontSize: 15, fontWeight: 300, color: "rgba(255,255,255,.5)", maxWidth: 340, lineHeight: 1.8 }}>
+          Sign in to manage your accounts, transfers, and more — securely from anywhere.
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 64, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,.08)" }}>
+          {[["🔒", "256-bit encrypted"], ["✓", "CBK regulated"], ["⚡", "Instant access"]].map(([icon, label]) => (
+            <div key={label} style={{ fontSize: 12, color: "rgba(255,255,255,.4)", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 13 }}>{icon}</span>{label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right panel — form */}
+      <div style={{ width: "min(480px, 100%)", background: T.cream, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px" }}>
+        <div style={{ width: "100%", maxWidth: 360 }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: T.navy, marginBottom: 8 }}>Sign in</h2>
+          <p style={{ fontSize: 14, color: T.muted, fontWeight: 300, marginBottom: 36 }}>Enter your phone number and PIN.</p>
+
+          <form onSubmit={handleLogin}>
+            <FormInput label="Phone Number" placeholder="07xxxxxxxx" value={phone} onChange={e => setPhone(e.target.value)} required />
+            <FormInput label="PIN" type="password" placeholder="••••" value={pin} onChange={e => setPin(e.target.value)} maxLength={4} required />
+
+            {error && (
+              <div style={{ background: "#FEF0EF", border: "1px solid #FCCFCC", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: T.danger, marginBottom: 20 }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}
+              style={{
+                width: "100%", padding: "14px", background: loading ? T.muted : T.navy,
+                color: "white", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600,
+                cursor: loading ? "wait" : "pointer", letterSpacing: .5, transition: "background .2s",
+                fontFamily: "inherit",
+              }}>
+              {loading ? "Signing in…" : "Sign In →"}
+            </button>
+          </form>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
+            <div style={{ flex: 1, height: 1, background: T.border }} />
+            <span style={{ fontSize: 12, color: T.hint }}>or</span>
+            <div style={{ flex: 1, height: 1, background: T.border }} />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
-            <input
-              type="password"
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Your PIN"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              required
-            />
-          </div>
+          <p style={{ textAlign: "center", fontSize: 13, color: T.muted }}>
+            Don't have an account?{" "}
+            <Link to="/register" style={{ color: T.gold, fontWeight: 600 }}>Open one free</Link>
+          </p>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition ${
-              loading
-                ? "bg-indigo-300 cursor-wait"
-                : "bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600"
-            }`}
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-
-          <div className="text-center text-sm text-gray-600">
-            Don’t have an account?{" "}
-            <Link
-              to="/register"
-              className="text-indigo-600 font-medium hover:underline"
-            >
-              Create Account
-            </Link>
-          </div>
-        </form>
+          <p style={{ textAlign: "center", marginTop: 32, fontSize: 11, color: T.hint, lineHeight: 1.7 }}>
+            By continuing you agree to our{" "}
+            <Link to="/terms" style={{ color: T.muted }}>Terms</Link> &amp;{" "}
+            <Link to="/privacy" style={{ color: T.muted }}>Privacy Policy</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

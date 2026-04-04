@@ -1,78 +1,54 @@
 import React, { useState } from "react";
-import { Mail, User, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Mail, MessageSquare, Phone } from "lucide-react";
+import PageLayout from "./PageLayout";
+import Card from "./Card";
+import FormInput from "./FormInput";
+import { T } from "./theme";
 
 export default function ContactUs() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sent, setSent] = useState(false);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    alert("Your message has been sent. Our support team will contact you soon.");
-    setFormData({ name: "", email: "", message: "" });
+    setSent(true);
+    setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center">
-          <MessageSquare className="text-blue-600 mr-2" /> Contact Us
-        </h1>
+    <PageLayout title="Contact Us" eyebrow="Get in Touch" icon={MessageSquare} maxWidth={960}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24 }}>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium mb-1 flex items-center">
-              <User size={16} className="mr-1 text-gray-500" /> Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <Card>
+          {sent ? (
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>✓</div>
+              <h3>Message sent.</h3>
+              <button onClick={() => setSent(false)}>Send another</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <FormInput label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
+              <FormInput label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} required />
+              <FormInput label="Subject" name="subject" value={formData.subject} onChange={handleChange} required />
+              <FormInput label="Message" name="message" value={formData.message} onChange={handleChange} rows={5} required />
+              <button type="submit">Send Message →</button>
+            </form>
+          )}
+        </Card>
 
-          <div>
-            <label className="block text-sm font-medium mb-1 flex items-center">
-              <Mail size={16} className="mr-1 text-gray-500" /> Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Message</label>
-            <textarea
-              name="message"
-              rows="5"
-              value={formData.message}
-              onChange={handleChange}
-              required
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md"
-          >
-            Send Message
-          </button>
-        </form>
+        <div>
+          <Card>
+            <Phone /> +254 700 000 000
+          </Card>
+          <Card>
+            <Mail /> support@capitalbank.co.ke
+          </Card>
+        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
