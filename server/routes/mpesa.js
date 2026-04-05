@@ -1,5 +1,3 @@
-// server/routes/mpesa.js
-
 const express = require("express");
 const {
   stkPush,
