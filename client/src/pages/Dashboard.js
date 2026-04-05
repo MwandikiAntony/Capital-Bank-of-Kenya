@@ -3,7 +3,7 @@ import {
   Wallet, ArrowLeftRight, UserCog, Settings2, Bell,
   CreditCard, FileText, BarChart3, Menu, X, LogOut,
   TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft,
-  Plus, Eye, EyeOff, ChevronRight, Home,
+  Plus, Eye, EyeOff, Home,
 } from "lucide-react";
 import UpdateProfile from "../components/UpdateProfile";
 import LoanApplication from "../components/LoanApplication";
