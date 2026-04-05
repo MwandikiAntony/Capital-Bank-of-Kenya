@@ -1,27 +1,35 @@
 // client/src/index.js
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import axios from 'axios';
-import App from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import axios from "axios";
+import "./index.css";
+import App from "./App";
 
-// Restore token if available and set axios default header
-const token = localStorage.getItem('token');
-if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+// ── Auth bootstrap ─────────────────────────────────────────────
+// Restore token on page load so all axios requests include the header
+const token = localStorage.getItem("token");
+if (token) {
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
 
-// Optional: interceptor to auto-handle 401
+// ── Global 401 interceptor ─────────────────────────────────────
+// Automatically clears auth state and redirects to /login on expired sessions
 axios.interceptors.response.use(
-  res => res,
-  err => {
-    if (err.response && err.response.status === 401) {
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
-      window.location.href = '/login';
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("userId");
+      delete axios.defaults.headers.common["Authorization"];
+      window.location.href = "/login";
     }
     return Promise.reject(err);
   }
 );
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// ── Render ─────────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />

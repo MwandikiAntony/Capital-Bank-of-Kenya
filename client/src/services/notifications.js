@@ -1,8 +1,12 @@
-// services/notifications.js
+// client/src/services/notifications.js
 import api from "../utils/api";
 
+/**
+ * Fetches the current user's notifications from the API.
+ * Silently ignores 401 errors (handled globally by the axios interceptor).
+ * @returns {Promise<Array>} Array of notification objects
+ */
 export const fetchNotifications = async () => {
-  console.log("🔁 Fetching notifications...");
   try {
     const res = await api.get("/account/notifications");
     return res.data;

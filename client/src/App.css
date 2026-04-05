@@ -1,38 +1,290 @@
+/* ─────────────────────────────────────────────────────────────
+   Capital Bank of Kenya — App.css
+   Component-scoped styles and overrides.
+   Global tokens and utilities live in index.css
+───────────────────────────────────────────────────────────── */
+
+/* ── Root app shell ───────────────────────────────────────── */
 .App {
-  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cream);
+  font-family: var(--font-body);
+  color: var(--text-primary);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ── Page transitions ─────────────────────────────────────── */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.App-header {
-  background-color: #282c34;
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* ── Loading screen ───────────────────────────────────────── */
+.app-loading {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background: var(--navy);
+  gap: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+.app-loading__logo-mark {
+  width: 52px;
+  height: 52px;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.app-loading__logo-mark::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  transform: rotate(45deg);
+}
+
+.app-loading__spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid rgba(201, 168, 76, 0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.app-loading__text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* ── Toast overrides (react-toastify) ─────────────────────── */
+.Toastify__toast {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 8px 32px rgba(11, 31, 58, 0.12) !important;
+}
+
+.Toastify__toast--success {
+  background: #EAFAF2 !important;
+  color: var(--success) !important;
+  border: 1px solid #9FEACE !important;
+}
+
+.Toastify__toast--error {
+  background: #FEF0EF !important;
+  color: var(--danger) !important;
+  border: 1px solid #FCCFCC !important;
+}
+
+.Toastify__toast--info {
+  background: var(--gold-pale) !important;
+  color: var(--navy) !important;
+  border: 1px solid rgba(201, 168, 76, 0.3) !important;
+}
+
+.Toastify__progress-bar--success { background: var(--success) !important; }
+.Toastify__progress-bar--error   { background: var(--danger)  !important; }
+.Toastify__progress-bar--info    { background: var(--gold)    !important; }
+
+.Toastify__close-button {
+  color: currentColor !important;
+  opacity: 0.5 !important;
+}
+
+/* ── Dashboard layout ─────────────────────────────────────── */
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  position: sticky;
+  top: 64px;
+  overflow-y: auto;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 32px 28px;
+  overflow-y: auto;
+  background: var(--cream);
+}
+
+/* Dark mode dashboard */
+.dark .dashboard-sidebar {
+  background: var(--dark-surf);
+  border-right-color: var(--dark-bord);
+}
+
+.dark .dashboard-main {
+  background: var(--dark-bg);
+}
+
+/* ── Sidebar nav items ────────────────────────────────────── */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  margin-bottom: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.sidebar-nav-item.active {
+  background: var(--navy);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.dark .sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--white);
+}
+
+/* ── Section animations ───────────────────────────────────── */
+.section-enter {
+  animation: fadeIn 0.35s ease both;
+}
+
+/* ── Responsive: mobile sidebar ───────────────────────────── */
+@media (max-width: 767px) {
+  .dashboard-sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    height: 100%;
   }
-  to {
-    transform: rotate(360deg);
+
+  .dashboard-sidebar.open {
+    transform: translateX(0);
   }
+
+  .dashboard-main {
+    padding: 20px 16px;
+    margin-left: 0;
+  }
+}
+
+/* ── Misc component helpers ───────────────────────────────── */
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+.dark .divider {
+  background: var(--dark-bord);
+}
+
+/* Badge pill */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-success {
+  background: #EAFAF2;
+  color: var(--success);
+  border: 1px solid #9FEACE;
+}
+
+.badge-danger {
+  background: #FEF0EF;
+  color: var(--danger);
+  border: 1px solid #FCCFCC;
+}
+
+.badge-gold {
+  background: var(--gold-pale);
+  color: var(--navy);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+}
+
+.badge-navy {
+  background: var(--navy);
+  color: var(--gold);
+  border: 1px solid var(--navy-light);
+}
+
+/* Truncate text */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Visually hidden (accessibility) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
